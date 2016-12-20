@@ -1,17 +1,13 @@
 #ifndef DEFINES_H_
 #define DEFINES_H_
 
-#include <stdio.h>
-#include <stdint.h>
-#include <sys/time.h>
-#include <iostream>
-
-#include <wiringPi.h>
-#include <wiringPiSPI.h>
-#include <wiringPiI2C.h>
-
-#include <mqueue.h>
-#include <pthread.h>
+#include<mqueue.h>
+#include<stdio.h>
+#include<stdint.h>
+#include<sys/time.h>
+#include<wiringPi.h>
+#include<wiringPiSPI.h>
+#include<pthread.h>
 
 #define MQSENSORS      "/mq_sensors"
 #define MQSENSORSLEN   2

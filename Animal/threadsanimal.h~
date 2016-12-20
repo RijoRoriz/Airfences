@@ -18,8 +18,6 @@ pthread_mutex_t *mutex_sendInfo;
 
 /***** SIGNALS *****/
 pthread_cond_t *ts_sendInfo;
-pthread_cond_t *ts_endProcessing;
-pthread_cond_t *ts_GPSReady;
 
 /***** Objects *****/
 CRFCom *m_rf;

@@ -1,7 +1,10 @@
-#include "defines.h"
-
+#include <stdio.h>
+#include <stdint.h>
+#include <iostream>
 #include <iomanip>      // std::setprecision
 
+#include <wiringPi.h>
+#include <wiringPiI2C.h>
 
 /*=========================================================================
     I2C ADDRESS/BITS

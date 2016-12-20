@@ -44,7 +44,7 @@ CThreadsAnimal::CThreadsAnimal()
   int shock_status = pthread_create(&t_shock, &thread_attr,pv_shockHandler, NULL);
 
   thread_attr=setAttr(80);
-  int GPS_status = pthread_create(&t_gps,&thread_attr,pv_gpsHandler,NULL);
+  int GPS_status = pthread_create(&t_gps,&thread_attr,pv_GPSHandler,NULL);
   int batT_status = pthread_create(&t_batTemp, &thread_attr,pv_batTempHandler, NULL);
 
   thread_attr=setAttr(70);
