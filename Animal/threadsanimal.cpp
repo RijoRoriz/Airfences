@@ -136,12 +136,12 @@ int main()
 	mq_GPS = mq_open(MQGPS, O_CREAT | O_EXCL, S_IRWXU | S_IRWXG, NULL);
 	CRFCom teste;
 	teste.RFComPrintConf();
-	printf("loool\n");
-	unsigned char array[32]={0,0,4,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
-	teste.RFComSender(NULL,array);
+	unsigned char array[32]={1,2,3,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+	//teste.RFComSender(NULL,array);
 	teste.RFComPrintRPaylo();
-	teste.RFComReceiver();
-	teste.RFComPrintRPaylo();
+	teste.RFComPrintTPaylo();
+	//teste.RFComReceiver();
+	//teste.RFComPrintRPaylo();
 	mq_close(mq_GPS);
 	mq_close(mq_rf);
 	mq_unlink(MQGPS);
