@@ -6,7 +6,7 @@
 #include <mqueue.h>
 
 #include "defines.h"
-//#include "adc.h"
+#include "adc.h"
 //#include "animal.h"
 //#include "fieldmap.h"
 #include "gps.h"

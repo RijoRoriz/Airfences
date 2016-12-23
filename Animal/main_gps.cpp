@@ -1,5 +1,3 @@
-#include <iostream>
-#include <pthread.h>
 #include "defines.h"
 #include "threadsanimal.h"
 

@@ -96,6 +96,7 @@ void CThreadsAnimal::run()
 	pthread_detach(t_RFComReceiver);
    pthread_detach(t_RFComSender);
    pthread_detach(t_gps);
+   pthread_detach(t_batTemp);
 }
 
 
@@ -124,7 +125,16 @@ void * CThreadsAnimal :: pv_shockHandler(void *threadid)
 
 void * CThreadsAnimal :: pv_batTempHandler(void *threadid)
 {
+  CAdc adc;
+  cout << "thread t_batTemp" << endl;
 
+  while(1)
+  {
+    adc.readTemperature();
+
+    adc.readBatteryLevel();
+    delay(3000);
+  }
 
 }
 
@@ -138,10 +148,21 @@ void * CThreadsAnimal :: pv_gpsHandler(void *threadid)
   CGps gps;
   gps.initGps();
 
+  cout << "thread t_gps" << endl;
+
   while(1)
   {
     delay(2000);
     gps.readGps();
+
+    if(gps.gpsDataStatus()) // Send it to mq_GPS
+    {
+
+    }
+    else
+    {
+
+    }
   }
 
 }

@@ -202,19 +202,3 @@ bool CGps :: gpsDataStatus()
 {
   return mb_gpsData;
 }
-
-
-//
-// int main()
-// {
-// 	CGps gps;
-//
-//   gps.initGps();
-//
-//   for(int i = 0; i < 5; i++)
-//   {
-//     gps.readGps();
-//   }
-//
-// 	return 0;
-// }
