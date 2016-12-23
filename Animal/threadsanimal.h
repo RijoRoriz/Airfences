@@ -9,7 +9,7 @@
 //#include "adc.h"
 //#include "animal.h"
 //#include "fieldmap.h"
-//#include "gps.h"
+#include "gps.h"
 //#include "leds.h"
 #include "NRF905.h"
 
@@ -23,6 +23,7 @@ pthread_cond_t *ts_GPSReady;
 
 /***** Objects *****/
 CRFCom *m_rf;
+CGps *m_gps;
 
 using namespace std;
 
@@ -34,7 +35,7 @@ public:
 	void run();
 
 private:
-		
+
 	/***** QUEUES *****/
 	mqd_t mq_GPS;
 	mqd_t mq_rf;
@@ -57,7 +58,6 @@ private:
 	static void * pv_processinInfoHandler(void *threadid);
 	static void * pv_gpsHandler(void *threadid);
 
-	void SetupThread(int prio,pthread_attr_t *pthread_attr,struct sched_param *pthread_param);
 };
 
 #endif /*THREADSANIMAL_H_*/

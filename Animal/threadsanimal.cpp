@@ -5,7 +5,7 @@ CThreadsAnimal::CThreadsAnimal()
   /***** MUTEX *****/
   mutex_sendInfo = new pthread_mutex_t();
   int m_sendInfo_status=pthread_mutex_init(mutex_sendInfo,NULL);
-  
+
   /***** SIGNALS *****/
   ts_sendInfo = new pthread_cond_t();
   int ts_sendInfo_status=pthread_cond_init(ts_sendInfo, NULL);
@@ -111,7 +111,7 @@ void * CThreadsAnimal :: pv_shockHandler(void *threadid)
 
 void * CThreadsAnimal :: pv_batTempHandler(void *threadid)
 {
-  
+
 
 }
 
@@ -122,33 +122,11 @@ void * CThreadsAnimal :: pv_processinInfoHandler(void *threadid)
 
 void * CThreadsAnimal :: pv_gpsHandler(void *threadid)
 {
+  CGps gps;
 
-
-}
-
-int main()
-{
-	//CThreadsAnimal animal;
-	//animal.run();
-	mqd_t mq_GPS;
-	mqd_t mq_rf;
-	mq_rf = mq_open(MQRFCOM, O_CREAT | O_EXCL, S_IRWXU | S_IRWXG, NULL);
-	mq_GPS = mq_open(MQGPS, O_CREAT | O_EXCL, S_IRWXU | S_IRWXG, NULL);
-	CRFCom teste;
-	teste.RFComPrintConf();
-	unsigned char array[32]={1,2,3,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
-	//teste.RFComSender(NULL,array);
-	teste.RFComPrintRPaylo();
-	teste.RFComPrintTPaylo();
-	//teste.RFComReceiver();
-	//teste.RFComPrintRPaylo();
-	while(1)
-	{
-		teste.RFComSender(NULL,array);
-	}
-	mq_close(mq_GPS);
-	mq_close(mq_rf);
-	mq_unlink(MQGPS);
-	mq_unlink(MQRFCOM);
+  while(1)
+  {
+    gps.readGps();
+  }
 
 }
