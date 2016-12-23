@@ -1,5 +1,17 @@
 #include "threadsanimal.h"
 
+/***** MUTEX *****/
+pthread_mutex_t *mutex_sendInfo;
+
+/***** SIGNALS *****/
+pthread_cond_t *ts_sendInfo;
+pthread_cond_t *ts_endProcessing;
+pthread_cond_t *ts_GPSReady;
+
+/***** Objects *****/
+CRFCom *m_rf;
+CGps *m_gps;
+
 CThreadsAnimal::CThreadsAnimal()
 {
   /***** MUTEX *****/
@@ -52,7 +64,7 @@ CThreadsAnimal::CThreadsAnimal()
 
   if(rfS_status || rfR_status || shock_status || batT_status || pIn_status || GPS_status)
   {
-    //cout << "ERROR CREATING THREAD" << endl;
+    cout << "ERROR CREATING THREAD" << endl;
   }
 }
 
@@ -83,6 +95,7 @@ void CThreadsAnimal::run()
 {
 	pthread_detach(t_RFComReceiver);
    pthread_detach(t_RFComSender);
+   pthread_detach(t_gps);
 }
 
 
@@ -123,9 +136,11 @@ void * CThreadsAnimal :: pv_processinInfoHandler(void *threadid)
 void * CThreadsAnimal :: pv_gpsHandler(void *threadid)
 {
   CGps gps;
+  gps.initGps();
 
   while(1)
   {
+    delay(2000);
     gps.readGps();
   }
 

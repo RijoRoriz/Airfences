@@ -15,7 +15,8 @@ CGps :: CGps()
 		cout << "Error GPS" << endl;
   }
 
-  mb_status = false;
+  mb_gpsPower = false;
+  mb_gpsData = false;
 
 }
 
@@ -47,6 +48,7 @@ void CGps :: powerON()
 void CGps :: powerOFF()
 {
 	sendATCommand("AT+CPOWD=1\r\n", "OK", 2000);
+  mb_gpsPower = false;
 }
 
 
@@ -62,7 +64,6 @@ void CGps :: initGps()
 
 	sendATCommand("AT+CGPSRST=0\r\n", "OK", 2000);
 
-
 	// waits for fix GPS
 	while( !(sendATCommand("AT+CGPSSTATUS?\r\n", "2D Fix", 3000) ||
 			sendATCommand("AT+CGPSSTATUS?\r\n", "3D Fix", 3000)))
@@ -71,7 +72,7 @@ void CGps :: initGps()
       i++;
      }
 
-     mb_status = true;
+     mb_gpsPower = true;
 }
 
 
@@ -152,18 +153,18 @@ void CGps :: readGps()
   //<messageID>,<latitude>,<N/S>,<longitude>,<E/W>,<UTCtime>,<status>
   sscanf(answer, "%i,%f,%c,%f,%c,%f,%c", &messageID, &flatitude, &NS_indicator, &flongitude, &EW_indicator, &UTCtime, &status);
 
-  cout << "Answer: " << answer << endl
-  << "flatitude: " << flatitude << endl
-  << "NS_indicator: " << NS_indicator << endl
-  << "flongitude: " << flongitude << endl
-  << "EW_indicator: " << EW_indicator << endl;
+  // cout << "Answer: " << answer << endl
+  // << "flatitude: " << flatitude << endl
+  // << "NS_indicator: " << NS_indicator << endl
+  // << "flongitude: " << flongitude << endl
+  // << "EW_indicator: " << EW_indicator << endl;
 
   if(status == 'A') // Data Valid
   {
     fdegrees = (int)flatitude / 100;
-    cout << "fdegrees: " << fdegrees << endl;
+    //cout << "fdegrees: " << fdegrees << endl;
     fminutes = (flatitude - fdegrees * 100) / 60;
-    cout << "fminutes: " << fminutes << endl;
+    //cout << "fminutes: " << fminutes << endl;
     mf_latitude = fdegrees + fminutes;
 
 
@@ -172,9 +173,9 @@ void CGps :: readGps()
     }
 
     fdegrees = (int)flongitude / 100;
-    cout << "fdegrees: " << fdegrees << endl;
+    //cout << "fdegrees: " << fdegrees << endl;
     fminutes = (flongitude - fdegrees * 100) / 60;
-    cout << "fminutes: " << fminutes << endl;
+    //cout << "fminutes: " << fminutes << endl;
     mf_longitude = fdegrees + fminutes;
 
     if(EW_indicator == 'W') {
@@ -183,6 +184,8 @@ void CGps :: readGps()
 
     mi_UTCtime = (int)UTCtime;
 
+    mb_gpsData = true;
+
     cout << setprecision(6) << fixed;
     cout << "LATITUDE:  " << mf_latitude << endl;
     cout << "LONGITUDE: " << mf_longitude << endl;
@@ -190,20 +193,28 @@ void CGps :: readGps()
   else //Data not valid - Read again
   {
     readGps();
+    mb_gpsData = false;
     cout << "Read again..." << endl;
   }
 }
 
-int main()
+bool CGps :: gpsDataStatus()
 {
-	CGps gps;
-
-  gps.initGps();
-
-  for(int i = 0; i < 5; i++)
-  {
-    gps.readGps();
-  }
-
-	return 0;
+  return mb_gpsData;
 }
+
+
+//
+// int main()
+// {
+// 	CGps gps;
+//
+//   gps.initGps();
+//
+//   for(int i = 0; i < 5; i++)
+//   {
+//     gps.readGps();
+//   }
+//
+// 	return 0;
+// }

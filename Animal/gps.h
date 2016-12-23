@@ -27,7 +27,8 @@ private:
 	float mf_longitude;
 	int mi_UTCtime;
 
-	bool mb_status;
+	bool mb_gpsPower;
+	bool mb_gpsData;
 
 public:
 
@@ -40,6 +41,7 @@ public:
 	void powerOFF();
 	void initGps();
 	void readGps();
+	bool gpsDataStatus();
 
 };
 

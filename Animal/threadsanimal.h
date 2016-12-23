@@ -13,17 +13,17 @@
 //#include "leds.h"
 #include "NRF905.h"
 
-/***** MUTEX *****/
-pthread_mutex_t *mutex_sendInfo;
-
-/***** SIGNALS *****/
-pthread_cond_t *ts_sendInfo;
-pthread_cond_t *ts_endProcessing;
-pthread_cond_t *ts_GPSReady;
-
-/***** Objects *****/
-CRFCom *m_rf;
-CGps *m_gps;
+// /***** MUTEX *****/
+// pthread_mutex_t *mutex_sendInfo;
+//
+// /***** SIGNALS *****/
+// pthread_cond_t *ts_sendInfo;
+// pthread_cond_t *ts_endProcessing;
+// pthread_cond_t *ts_GPSReady;
+//
+// /***** Objects *****/
+// CRFCom *m_rf;
+// CGps *m_gps;
 
 using namespace std;
 
