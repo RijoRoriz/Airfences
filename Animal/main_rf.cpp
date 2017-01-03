@@ -1,3 +1,7 @@
+#include "defines.h"
+#include "NRF905.h"
+
+
 int main()
 {
 	//CThreadsAnimal animal;
@@ -12,12 +16,21 @@ int main()
 	//teste.RFComSender(NULL,array);
 	teste.RFComPrintRPaylo();
 	teste.RFComPrintTPaylo();
-	//teste.RFComReceiver();
+	teste.RFComReceiver();
 	//teste.RFComPrintRPaylo();
-	while(1)
-	{
-		teste.RFComSender(NULL,array);
-	}
+	teste.RFComSender(NULL,array);
+	teste.RFComSender(NULL,array);
+	teste.RFComSender(NULL,array);
+	teste.RFComSender(NULL,array);
+	teste.RFComSender(NULL,array);
+	teste.RFComSender(NULL,array);
+	teste.RFComSender(NULL,array);
+	teste.RFComSender(NULL,array);
+	teste.RFComSender(NULL,array);
+	teste.RFComSender(NULL,array);
+	teste.RFComSender(NULL,array);
+	teste.RFComPrintTPaylo();
+
 	mq_close(mq_GPS);
 	mq_close(mq_rf);
 	mq_unlink(MQGPS);

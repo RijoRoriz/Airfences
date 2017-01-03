@@ -5,11 +5,7 @@
 class CRFCom
 {
 	private:
-	
-		/***** Queues *****/
-		mqd_t mq_GPS;
-		mqd_t mq_rf;
-				
+					
 		int m_cState;
 		int i_SetIdle();
 		int i_SetTx();
@@ -17,7 +13,6 @@ class CRFCom
 		unsigned char m_AddT[4];
 		void RFComSetPayload(unsigned char *Payload);
 		void RFComSetAddT(unsigned char *TxAddress);
-		static pthread_mutex_t mutex_mode;
 		
 	public:
 		CRFCom();
@@ -29,7 +24,7 @@ class CRFCom
 		void RFComPrintTAddr();
 		void RFComPrintTPaylo();
 		void RFComPrintRPaylo();
-		void RFComReceiver();
+		unsigned char * RFComReceiver();
 };
 
 #endif /*NRF905_H_*/

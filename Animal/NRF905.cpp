@@ -1,6 +1,5 @@
 #include "NRF905.h"
 
-pthread_mutex_t CRFCom::mutex_mode = PTHREAD_MUTEX_INITIALIZER;
  
 CRFCom::CRFCom(){
 	
@@ -17,18 +16,6 @@ CRFCom::CRFCom(){
       0xCC,0xCC,0xCC,0xCC,    //receiving address
       0x58,                   //CRC enable,8bit CRC,external clock disable,16MHZ Oscillator
 	};
-
-	/***** Queues init *****/
-	mq_GPS = mq_open(MQGPS, O_RDONLY);
-	mq_rf = mq_open(MQRFCOM, O_RDWR);
-	if (mq_GPS == (mqd_t)-1) {
-        perror("In mq_open()");
-        exit(1);
-   }
-   if (mq_rf == (mqd_t)-1) {
-        perror("In mq_open()");
-        exit(1);
-   }
    
 	//Init nRF905
 	pinMode(CSN, OUTPUT);
@@ -64,6 +51,7 @@ CRFCom::CRFCom(){
 	command[4]= m_AddT[3];
 	wiringPiSPIDataRW(0, command, 5);
 	digitalWrite(CE,0);
+	i_SetRx();
 }
 
 void CRFCom::RFComSetAddR(unsigned char *RxAddress)
@@ -109,8 +97,7 @@ void CRFCom::RFComSetAddT(unsigned char *TxAddress)
 }
 
 CRFCom::~CRFCom(){
-	mq_close(mq_GPS);
-	mq_close(mq_rf);
+
 }
 
 int CRFCom::i_SetTx()
@@ -132,11 +119,9 @@ int CRFCom::i_SetRx()
 {
 	if(m_cState==1)
 	{
-		pthread_mutex_lock(&mutex_mode);
 		digitalWrite(CE, 1);
 		digitalWrite(TX_EN, 0);
 		m_cState=0;
-		pthread_mutex_unlock(&mutex_mode);
 		delay(1);
    }
    return 0;
@@ -156,8 +141,16 @@ void CRFCom::RFComSender(unsigned char *TxAddress, unsigned char *Payload)
 		
 		/***** prepare data to send *****/
 		i_SetTx(); //Set transmit mod
-		if(TxAddress!=NULL) this->RFComSetAddT(TxAddress); 
-		if(Payload!=NULL) this->RFComSetPayload(Payload);
+		if(TxAddress!=NULL)
+		{
+			this->RFComSetAddT(TxAddress); 
+			printf("TxAdd not null");
+		} 
+		if(Payload!=NULL)
+		{
+		 this->RFComSetPayload(Payload);
+		 printf("Payload not null");
+		}
 		else
 		{
 			//RFComSetPayload(msgcontentGPS);
@@ -167,22 +160,16 @@ void CRFCom::RFComSender(unsigned char *TxAddress, unsigned char *Payload)
 		digitalWrite(CE,0);
 }
 	
-void CRFCom::RFComReceiver()
+unsigned char * CRFCom::RFComReceiver()
 {
 		i_SetRx();
 		while(digitalRead(DR)==0);
-		/*unsigned char msgcontentGPS [MQRFCOMLEN+1];
-		unsigned int sender;
-		msgcontentGPS[0]= NRF905_READ_RX_PAYLOAD;		
-		wiringPiSPIDataRW(0, msgcontentGPS, MQRFCOMLEN+1);	
-		int mq_error = mq_send(mq_rf, (char*)msgcontentGPS+1, MQRFCOMLEN ,sender);
-		if (mq_error == -1) {
-		     perror("In mq_receive()");
-		     exit(1);
-		}*/
+		unsigned char read [33];
+   	configurationread[0]= NRF905_READ_RX_PAYLOAD;		
+		wiringPiSPIDataRW(0, read, 33);	
 		digitalWrite(CE, 1);
 		digitalWrite(CE, 0);
-		delay(1);
+		return read;
 }
 
 void CRFCom::RFComPrintConf()
