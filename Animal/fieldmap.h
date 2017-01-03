@@ -1,3 +1,10 @@
+#ifndef FIELDMAP_H_
+#define FIELDMAP_H_
+
+#include "defines.h"
+
+using namespace std;
+
 struct SSquare
 {
 	long ml_x1; // first x coordinate
@@ -6,7 +13,7 @@ struct SSquare
 	long ml_y2; // second y coordinate
 };
 
-class CfieldMap
+class CFieldMap
 {
 	private:
 	struct SSquare m_greenzone;
@@ -16,13 +23,15 @@ class CfieldMap
 	void m_calcGreenzone();
 	void m_calcYellowzone();
 	void m_calcRedzone();
-	
+
 	public:
-	CfieldMap();
-	~CfieldMap();
+	CFieldMap();
+	~CFieldMap();
 	int m_configureMap(struct SSquare);
 	bool m_checkInsideGreen(long, long);
 	bool m_checkInsideYellow(long, long);
 	bool m_checkInsideRed(long, long);
-	bool m_checkInsideOut(long, long);	
+	bool m_checkInsideOut(long, long);
 };
+
+#endif /*FIELDMAP_H_*/
