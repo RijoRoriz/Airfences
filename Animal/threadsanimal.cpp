@@ -147,6 +147,7 @@ void * CThreadsAnimal :: pv_gpsHandler(void *threadid)
 {
   CGps gps;
   gps.initGps();
+  char gpsCoordinates[50];
 
   cout << "thread t_gps" << endl;
 
@@ -157,6 +158,12 @@ void * CThreadsAnimal :: pv_gpsHandler(void *threadid)
 
     if(gps.gpsDataStatus()) // Send it to mq_GPS
     {
+      memset(gpsCoordinates, '\0', 50);    // Initialize the string
+      sprintf(gpsCoordinates, "%f;%f", gps.getLatitude(), gps.getLongitude());
+
+      mq_GPS = mq_open(MQGPS, O_RDWR); //Send coordinates
+      mq_send(mq_GPS, gpsCoordinates, strlen(gpsCoordinates)+1, 1);
+      mq_close(mq_GPS);
 
     }
     else
