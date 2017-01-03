@@ -104,11 +104,9 @@ int CRFCom::i_SetTx()
 {
 	if(m_cState==0)
 		{
-		pthread_mutex_lock(&mutex_mode);
 		digitalWrite(CE, 0);
 		digitalWrite(TX_EN, HIGH);
 		m_cState=1;
-		pthread_mutex_unlock(&mutex_mode);
 		delay(1);
    }
    return 0;
@@ -160,16 +158,14 @@ void CRFCom::RFComSender(unsigned char *TxAddress, unsigned char *Payload)
 		digitalWrite(CE,0);
 }
 	
-unsigned char * CRFCom::RFComReceiver()
+void CRFCom::RFComReceiver(unsigned char * returned)
 {
 		i_SetRx();
 		while(digitalRead(DR)==0);
-		unsigned char read [33];
-   	configurationread[0]= NRF905_READ_RX_PAYLOAD;		
-		wiringPiSPIDataRW(0, read, 33);	
+   	returned[0]= NRF905_READ_RX_PAYLOAD;		
+		wiringPiSPIDataRW(0, returned, 33);	
 		digitalWrite(CE, 1);
 		digitalWrite(CE, 0);
-		return read;
 }
 
 void CRFCom::RFComPrintConf()
