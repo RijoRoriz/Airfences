@@ -1,9 +1,6 @@
 #ifndef ANIMAL_H_
 #define ANIMAL_H_
 
-#include <unistd.h>
-#include <signal.h>
-
 #include "threadsanimal.h"
 
 using namespace std;

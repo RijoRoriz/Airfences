@@ -12,6 +12,7 @@ CAnimal :: ~CAnimal()
 
 int CAnimal :: checkCommand(char *command)
 {
+  
 
 }
 
@@ -27,5 +28,5 @@ bool CAnimal :: loadAnimalInfo()
 
 bool CAnimal :: updateAnimalInfo()
 {
-  
+
 }
