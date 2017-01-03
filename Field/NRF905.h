@@ -24,7 +24,7 @@ class CRFCom
 		void RFComPrintTAddr();
 		void RFComPrintTPaylo();
 		void RFComPrintRPaylo();
-		unsigned char * RFComReceiver();
+		void RFComReceiver(unsigned char * returned);
 };
 
 #endif /*NRF905_H_*/
