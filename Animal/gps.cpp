@@ -202,3 +202,13 @@ bool CGps :: gpsDataStatus()
 {
   return mb_gpsData;
 }
+
+float CGps :: getLatitude()
+{
+  return mf_latitude;
+}
+
+float CGps :: getLongitude()
+{
+  return mf_longitude;
+}

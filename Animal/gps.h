@@ -43,6 +43,9 @@ public:
 	void readGps();
 	bool gpsDataStatus();
 
+	float getLatitude();
+	float getLongitude();
+
 };
 
 #endif
