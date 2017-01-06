@@ -48,8 +48,7 @@ CRFCom::CRFCom(){
 	command[2]= m_AddT[1];
 	command[3]= m_AddT[2];
 	command[4]= m_AddT[3];
-	wiringPiSPIDataRW(0, command, 5);
-	digitalWrite(CE,HIGH);
+	wiringPiSPIDataRW(0, command, 5);;
 	i_SetRx();
 }
 
@@ -148,7 +147,6 @@ void CRFCom::RFComSender(unsigned char *TxAddress, unsigned char *Payload)
 		digitalWrite(CE,1);
 		delay(1);
 		digitalWrite(CE,0);
-		i_SetRx();
 }
 
 void CRFCom::RFComReceiver(unsigned char * returned)

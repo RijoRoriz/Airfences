@@ -102,7 +102,6 @@ int CRFCom::i_SetTx()
 {
 	if(m_cState==0)
 		{
-		printf("Enviado");
 		digitalWrite(TX_EN, HIGH);
 		m_cState=1;
 		delay(1);
@@ -148,7 +147,6 @@ void CRFCom::RFComSender(unsigned char *TxAddress, unsigned char *Payload)
 		digitalWrite(CE,1);
 		delay(1);
 		digitalWrite(CE,0);
-		//i_SetRx();
 }
 	
 void CRFCom::RFComReceiver(unsigned char * returned)

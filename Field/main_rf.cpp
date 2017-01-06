@@ -10,6 +10,6 @@ int main()
 	teste.RFComSender(NULL,array);
 	teste.RFComPrintTAddr();
 	//teste.RFComReceiver(array);
-	teste.RFComPrintTPaylo();
+	//teste.RFComPrintTPaylo();
 	//teste.RFComReceiver(array);
 }
