@@ -148,7 +148,7 @@ void CRFCom::RFComSender(unsigned char *TxAddress, unsigned char *Payload)
 		digitalWrite(CE,1);
 		delay(1);
 		digitalWrite(CE,0);
-		i_SetRx();
+		// i_SetRx();
 }
 
 void CRFCom::RFComReceiver(unsigned char * returned)
