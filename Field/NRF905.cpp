@@ -49,6 +49,7 @@ CRFCom::CRFCom(){
 	command[3]= m_AddT[2];
 	command[4]= m_AddT[3];
 	wiringPiSPIDataRW(0, command, 5);
+	digitalWrite(CE, HIGH);
 	i_SetRx();
 }
 
