@@ -6,7 +6,7 @@ class CRFCom
 {
 	private:
 					
-		int m_cState;
+		bool m_cState;
 		int i_SetIdle();
 		int i_SetTx();
 		int i_SetRx();

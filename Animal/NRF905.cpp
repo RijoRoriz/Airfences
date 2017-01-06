@@ -27,7 +27,7 @@ CRFCom::CRFCom(){
 	pinMode(CE, OUTPUT);
 	digitalWrite(CE, LOW);// Set nRF905 in standby mode
 	pinMode(TX_EN, OUTPUT);
-	digitalWrite(TX_EN, HIGH);// set radio in Rx mode
+	digitalWrite(TX_EN, LOW);// set radio in Rx mode
 	
 	if(wiringPiSPISetup(0, 16000000) == -1){
 	  printf("Could not initialise SPI\n");
@@ -35,14 +35,13 @@ CRFCom::CRFCom(){
 	else{
 		/***** send write configuration command ******/
 		wiringPiSPIDataRW(0, RFConf, 11);
-		//i_SetRx();
 		
 	}
+	m_cState = 0;
 	m_AddT[0]=0xCC;
 	m_AddT[1]=0xCC;
 	m_AddT[2]=0xCC;
 	m_AddT[3]=0xCC;
-	
 	unsigned char command[5];
 	command[0]= NRF905_WRITE_TX_ADDR;
 	command[1]= m_AddT[0];
@@ -50,13 +49,13 @@ CRFCom::CRFCom(){
 	command[3]= m_AddT[2];
 	command[4]= m_AddT[3];
 	wiringPiSPIDataRW(0, command, 5);
-	digitalWrite(CE,0);
+	digitalWrite(CE,HIGH);
 	i_SetRx();
 }
 
 void CRFCom::RFComSetAddR(unsigned char *RxAddress)
 {
-	
+	digitalWrite(CE,LOW);
    uint8_t RFConf[11]=
 	{
 		NRF905_WRITE_CONF,
@@ -75,7 +74,7 @@ void CRFCom::RFComSetAddR(unsigned char *RxAddress)
 	
 	/***** send write configuration command ******/
 	wiringPiSPIDataRW(0, RFConf, 11);
-	//i_SetRx();
+	digitalWrite(CE,HIGH);
 	
 }
 
@@ -104,7 +103,6 @@ int CRFCom::i_SetTx()
 {
 	if(m_cState==0)
 		{
-		digitalWrite(CE, HIGH);
 		digitalWrite(TX_EN, HIGH);
 		m_cState=1;
 		delay(1);
@@ -150,6 +148,7 @@ void CRFCom::RFComSender(unsigned char *TxAddress, unsigned char *Payload)
 		digitalWrite(CE,1);
 		delay(1);
 		digitalWrite(CE,0);
+		i_SetRx();
 }
 	
 void CRFCom::RFComReceiver(unsigned char * returned)
@@ -164,7 +163,6 @@ void CRFCom::RFComPrintConf()
 {
 	unsigned char configurationread [11];
    configurationread[0]=NRF905_READ_CONF;
-	//wiringPiSPIDataRW(0, &command, 1);
 	wiringPiSPIDataRW(0, configurationread, 11);	
 	for(int i=1;i<11;i++)
 	{
@@ -222,6 +220,5 @@ void CRFCom::RFComSetPayload(unsigned char *Payload)
 		payload[i]=Payload[i-1];
 	}
 	wiringPiSPIDataRW(0, payload, NRF905_PAYLOAD_SIZE+1);
-	delay(1);	
 }
 
