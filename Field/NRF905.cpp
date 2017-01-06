@@ -104,7 +104,7 @@ int CRFCom::i_SetTx()
 {
 	if(m_cState==0)
 		{
-		digitalWrite(CE, 0);
+		digitalWrite(CE, HIGH);
 		digitalWrite(TX_EN, HIGH);
 		m_cState=1;
 		delay(1);
@@ -117,8 +117,8 @@ int CRFCom::i_SetRx()
 {
 	if(m_cState==1)
 	{
-		digitalWrite(CE, 1);
-		digitalWrite(TX_EN, 0);
+		digitalWrite(CE, HIGH);
+		digitalWrite(TX_EN, LOW);
 		m_cState=0;
 		delay(1);
    }
@@ -130,12 +130,6 @@ void CRFCom::RFComSender(unsigned char *TxAddress, unsigned char *Payload)
 		
 		unsigned int sender;
 		unsigned char msgcontentGPS[MQGPSLEN];
-		/***** Open Queue *****/
-		/*int mq_error = mq_receive(mq_GPS, (char*)msgcontentGPS, MQGPSLEN ,&sender);
-		if (mq_error == -1) {
-		     perror("In mq_receive()");
-		     exit(1);
-		}*/
 		
 		/***** prepare data to send *****/
 		i_SetTx(); //Set transmit mod
@@ -164,8 +158,6 @@ void CRFCom::RFComReceiver(unsigned char * returned)
 		while(digitalRead(DR)==0);
    	returned[0]= NRF905_READ_RX_PAYLOAD;		
 		wiringPiSPIDataRW(0, returned, 33);	
-		digitalWrite(CE, 1);
-		digitalWrite(CE, 0);
 }
 
 void CRFCom::RFComPrintConf()
