@@ -6,20 +6,9 @@ int main()
 {
 	CRFCom teste;
 	teste.RFComPrintConf();
-	unsigned char array[32]={1,2,3,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
-	//teste.RFComSender(NULL,array);
-	teste.RFComPrintRPaylo();
-	teste.RFComPrintTPaylo();
+	unsigned char array[33]={1,2,3,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
 	teste.RFComSender(NULL,array);
-	teste.RFComSender(NULL,array);
-	teste.RFComSender(NULL,array);
-	teste.RFComSender(NULL,array);
-	teste.RFComSender(NULL,array);
-	teste.RFComSender(NULL,array);
-	teste.RFComSender(NULL,array);
-	teste.RFComSender(NULL,array);
-	teste.RFComSender(NULL,array);
-	teste.RFComSender(NULL,array);
-	teste.RFComSender(NULL,array);
+	teste.RFComPrintTAddr();
+	teste.RFComReceiver(array);
 	teste.RFComPrintTPaylo();
 }
