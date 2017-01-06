@@ -1,27 +1,24 @@
 #include "defines.h"
 #include "NRF905.h"
 
+using namespace std;
 
 int main()
 {
+	unsigned char array[33];
+
 	CRFCom teste;
 	teste.RFComPrintConf();
-	unsigned char array[32]={1,2,3,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+
 	//teste.RFComSender(NULL,array);
 	teste.RFComPrintRPaylo();
 	teste.RFComPrintTPaylo();
 	teste.RFComPrintTAddr();
-	//teste.RFComPrintRPaylo();
-	teste.RFComSender(NULL,array);
-	teste.RFComSender(NULL,array);
-	teste.RFComSender(NULL,array);
-	teste.RFComSender(NULL,array);
-	teste.RFComSender(NULL,array);
-	teste.RFComSender(NULL,array);
-	teste.RFComSender(NULL,array);
-	teste.RFComSender(NULL,array);
-	teste.RFComSender(NULL,array);
-	teste.RFComSender(NULL,array);
-	teste.RFComSender(NULL,array);
+	teste.RFComReceiver(array);
+
+cout << array << endl;
+
+	// teste.RFComSender(NULL,array);
+
 	teste.RFComPrintTPaylo();
 }
