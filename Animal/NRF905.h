@@ -5,13 +5,8 @@
 class CRFCom
 {
 	private:
-<<<<<<< HEAD
-					
-		bool m_cState;
-=======
 
-		int m_cState;
->>>>>>> e7351a07d7d91b781b7971a0a82254f65cce8165
+		bool m_cState;
 		int i_SetIdle();
 		int i_SetTx();
 		int i_SetRx();
