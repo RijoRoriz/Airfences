@@ -155,6 +155,7 @@ void CRFCom::RFComReceiver(unsigned char * returned)
 {
 		i_SetRx();
 		while(digitalRead(DR)==0);
+		//delay(1000);
    	returned[0]= NRF905_READ_RX_PAYLOAD;
 		wiringPiSPIDataRW(0, returned, 33);
 }
