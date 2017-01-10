@@ -20,7 +20,7 @@ class CAnimal
 		CAnimal();
 		~CAnimal();
 
-		int checkCommand(char *command); //parcing dos comandos
+		char * checkCommand(char *command); //parcing dos comandos
 		void saveAnimalConf(); //Save Animal configuations  (ID, FieldID, field coordinates)
 		void loadAnimalConf();
 
