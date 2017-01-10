@@ -30,7 +30,7 @@ bool CTcpCom()::TcpOpen()
 
 bool CTcpCom()::TcpClose()
 {
-	
+	shutdown(sd,SHUT_RDWR);
 }
 
 int CTcpCom()::TcpComReceive(char * returned)
