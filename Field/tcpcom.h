@@ -1,8 +1,13 @@
+#ifndef TCPCOM_H_
+#define TCPCOM_H_
+
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <resolv.h>
 #include <netdb.h>
 #include <defines.h>
+
+#define TCPCOMLENGTH 32
 
 class CTcpCom
 {
@@ -17,6 +22,9 @@ class CTcpCom
 		~CTcpCom();
 		bool TcpComOpen();
 		bool TcpComClose();
-		void TcpComReceive(char * returned);
-		void TcpComTransmite(char * info);
+		int TcpComReceive(char * returned);
+		int TcpComTransmite(char * info);
+};
+
+#endif /*TCPCOM_H*/
 	

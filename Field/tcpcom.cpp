@@ -33,4 +33,20 @@ bool CTcpCom()::TcpClose()
 	
 }
 
-void CTcpCom()::TcpComReceive()
+int CTcpCom()::TcpComReceive(char * returned)
+{
+	if(m_bconnected){
+	recv(sd,returned,TCPCOMLENGTH,0);
+	return 0;
+	}
+	else return -1;
+}
+
+int CTcpCom()::TComTransmite(char * info)
+{
+	if(m_bconnected){
+	send(sd,info,TCPCOMLENGTH,0);
+	return 0;
+	}
+	else return -1;
+}
