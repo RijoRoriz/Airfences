@@ -84,6 +84,41 @@ int CAnimal :: checkCommand(char *command)
   return 0;
 }
 
+void CAnimal :: saveAnimalConf()
+{
+  ofstream outfile;
+
+  outfile.open(ANIMAL_CONF_FILE, outfile.out); //writing
+
+  if(outfile.is_open() && outfile.good()){ //Save Animal Configurations
+
+  }
+  else{
+    cout << "Error Saving File: " << ANIMAL_CONF_FILE << endl;
+  }
+  outfile.close();
+}
+
+void CAnimal :: loadAnimalConf()
+{
+  ifstream infile;
+  char buffer[50];
+
+  infile.open(ANIMAL_CONF_FILE, infile.in); //reading
+
+  if(infile.is_open() && infile.good()){
+    while(!infile.eof())
+    {
+      getline(infile, buffer);
+    }
+    infile.close();
+  }
+  else {
+    cout << "Error Loading File: " << ANIMAL_CONF_FILE << endl;
+  }
+
+}
+
 bool CAnimal :: saveAnimalInfo()
 {
 

@@ -3,6 +3,8 @@
 
 #include "threadsanimal.h"
 
+#define ANIMAL_CONF_FILE "/root/AnimalConf.txt"
+
 using namespace std;
 
 class CAnimal
@@ -19,6 +21,8 @@ class CAnimal
 		~CAnimal();
 
 		int checkCommand(char *command); //parcing dos comandos
+		void saveAnimalConf(); //Save Animal configuations  (ID, FieldID, field coordinates)
+		void loadAnimalConf();
 
 		bool saveAnimalInfo();
 		bool loadAnimalInfo();
