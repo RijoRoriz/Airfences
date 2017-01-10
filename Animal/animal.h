@@ -19,6 +19,7 @@ class CAnimal
 		~CAnimal();
 
 		int checkCommand(char *command); //parcing dos comandos
+
 		bool saveAnimalInfo();
 		bool loadAnimalInfo();
 		bool updateAnimalInfo();
