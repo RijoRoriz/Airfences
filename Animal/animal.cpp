@@ -10,70 +10,40 @@ CAnimal :: ~CAnimal()
 
 }
 
-int CAnimal :: checkCommand(char *command)
+char * CAnimal :: checkCommand(char *command)
 {
-  char buffer[50];
   int ifieldID, ianimalID;
   char ccommandType;
+  char cState;
 
-  memset(buffer, '\0', 50);
+  char resetCommand[4]; // 0-TYPE, 1-TEMP, 2-BAT, 3-GPS, 4-RF
+  char requestCommand[4]; // 0-TYPE, 1-TEMP, 2-BAT, 3-GPS, 4-RF
 
-  strcpy(buffer, command);
+  mmset(resetCommand, '\0', 4);
+  mmset(requestCommand, '\0', 4);
 
-  sscanf(buffer, "%d,%d,%c", &ifieldID, &ianimalID, &ccommandType);
+  sscanf(command, "%d,%d,%c", &ifieldID, &ianimalID, &ccommandType);
 
-  switch (ccommandType)
+  switch (command[2])
   {
     case 'R': //Reset "ID_Field,ID_Animal,R,Temperature,Battery,GPS,RF,State"
-      int iresetTemp, iresetBattery, iresetGPS, iresetRF, istate;
+      sscanf(command, "%d,%d,%c,%c,%c,%c,%c,%c", &ifieldID, &ianimalID, &resetCommand[0], &resetCommand[1], &resetCommand[2], &resetCommand[3], &resetCommand[4], &cState);
 
-      sscanf(buffer, "%d,%d,%c,%d,%d,%d,%d,%d", &ifieldID, &ianimalID, &ccommandType, &iresetTemp, &iresetBattery, &iresetGPS, &iresetRF, &istate);
-
-      if(iresetTemp){
-
-      }
-      else if(iresetBattery){
-
-      }
-      else if(iresetGPS){
-
-      }
-      else if(iresetRF){
-
-      }
-      else{
-
-      }
-
+      return resetCommand;
       break;
 
     case 'I': //Field request animal info "ID_Field,ID_Animal,I,Temperature,Battery,GPS,RF,State"
-    int ireqTemp, ireqBattery, ireqGPS, ireqRF, istate;
+      sscanf(command, "%d,%d,%c,%c,%c,%c,%c,%c", &ifieldID, &ianimalID, &requestCommand[0], &requestCommand[1], &requestCommand[2], &requestCommand[3], &requestCommand[4],  &cState);
 
-    sscanf(buffer, "%d,%d,%c,%d,%d,%d,%d,%d", &ifieldID, &ianimalID, &ccommandType, &ireqTemp, &ireqBattery, &ireqGPS, &ireqRF, &istate);
-
-    if(ireqTemp){
-
-    }
-    else if(ireqBattery){
-
-    }
-    else if(ireqGPS){
-
-    }
-    else if(ireqRF){
-
-    }
-    else{
-
-    }
-
-
-
-
-    break;
+      return requestCommand;
+      break;
 
     case 'N': //First Configuration "ID_Field,ID_Animal,N,ID_Animal,GreenZone_x1,GreenZone_x2,GreenZone_y1,GreenZone_y2"
+    SSquare greenZone;
+    sscanf(command, "%d,%d,%c,%f,%f,%f,%f", &ifieldID, &ianimalID, &ccommandType, &greenZone.x1, &greenZone.x2, &greenZone.y1, &greenZone.y2);
+
+
+
     break;
 
     case 'C': //New Configuration "ID_Field,ID_Animal,C,GreenZone_x1,GreenZone_x2,GreenZone_y1,GreenZone_y2"

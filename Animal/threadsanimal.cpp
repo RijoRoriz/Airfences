@@ -140,6 +140,62 @@ void * CThreadsAnimal :: pv_batTempHandler(void *threadid)
 
 void * CThreadsAnimal :: pv_processinInfoHandler(void *threadid)
 {
+  CAnimal animal;
+  CAdc adc;
+
+
+  char command[32]; //commando recebido por RF mq_rf
+
+  /*************************
+  command[0-1] - ID_Field
+  command[2-3] - ID_Animal
+  command[4] - Command Type
+  *************************/
+
+  switch (command[4]) {
+    case 'R': //Reset "ID_Field,ID_Animal,R,Temperature,Battery,GPS,RF,State"
+    /*****************************
+    command[5] - Reset Temperature
+    command[6] - Reset Battery
+    command[7] - Reset GPS
+    command[8] - Reset RF
+    ****************************/
+    if(command[5]){ //Reset Temperature
+
+    }
+    else if(command[6]){ //Reset Battery
+
+    }
+    else if(command[7]){ //Reset GPS
+
+    }
+    else if(command[8]){ //Reset RF
+
+    }
+    break;
+
+    case 'I':  //Field request animal info "ID_Field,ID_Animal,I,Temperature,Battery,GPS,RF,State"
+    break;
+
+    case 'N': //First Configuration "ID_Field,ID_Animal,N,ID_Animal,GreenZone_x1,GreenZone_x2,GreenZone_y1,GreenZone_y2"
+    /*****************************
+    command[5-6]   - ID_Animal
+    command[7-12]  - GreenZone_x1
+    command[13-18] - GreenZone_x2
+    command[19-24] - GreenZone_y1
+    command[25-29] - GreenZone_y2
+    ****************************/
+
+    SSquare greenZone;
+    greenZone.x1 = 2.0;
+    break;
+
+    case 'C': //New Configuration "ID_Field,ID_Animal,C,GreenZone_x1,GreenZone_x2,GreenZone_y1,GreenZone_y2"
+    break;
+
+    default:
+    break;
+  }
 
 }
 

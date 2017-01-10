@@ -7,10 +7,10 @@ using namespace std;
 
 struct SSquare
 {
-	long ml_x1; // first x coordinate
-	long ml_y1; // first y coordinate
-	long ml_x2; // second x coordinate
-	long ml_y2; // second y coordinate
+	float x1; // first x coordinate
+	float y1; // first y coordinate
+	float x2; // second x coordinate
+	float y2; // second y coordinate
 };
 
 class CFieldMap
