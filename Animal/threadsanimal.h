@@ -39,6 +39,7 @@ private:
 	/***** QUEUES *****/
 	mqd_t mq_GPS;
 	mqd_t mq_rf;
+	mqd_t mq_batTemp;
 
 	/***** PTHREADS *****/
 	pthread_t t_shock;

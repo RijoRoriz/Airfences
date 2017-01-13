@@ -93,7 +93,7 @@ pthread_attr_t CThreadsAnimal::setAttr(int prio)
 
 void CThreadsAnimal::run()
 {
-	pthread_detach(t_RFComReceiver);
+	 pthread_detach(t_RFComReceiver);
    pthread_detach(t_RFComSender);
    pthread_detach(t_gps);
    pthread_detach(t_batTemp);
@@ -102,20 +102,60 @@ void CThreadsAnimal::run()
 
 void * CThreadsAnimal::pv_RFComSenderHandler(void *threadid)
 {
-	//while(1)
+  unsigned char message[33];
+
+  while(1)
+  {
+    //Lock mutex_sendInfo
+    pthread_mutex_lock(&mutex_sendInfo);
+    //Wait for ts_sendInfo
+    //while(something) //Verificar se mq_rf está completa
+    pthread_cond_wait(&ts_sendInfo, &mutex_sendInfo);
+    //Unlock mutex_sendInfo
+    pthread_mutex_unlock(&mutex_sendInfo);
+
+    //open mq_rf - information to send
+
+    //Save content to char message[33]
+
+    //Send requested information
+    m_rf->RFComSender(NULL,message);
+  }
+
+	/*//while(1)
 	//{
 		pthread_cond_wait(ts_sendInfo, mutex_sendInfo);
 		((CRFCom*)threadid)->RFComSender(NULL, NULL);
-	//}
+	//}*/
 }
 
 void * CThreadsAnimal::pv_RFComReceiverHandler(void *threadid)
 {
-	//while(1)
+  unsigned char message[33];
+
+  while(1)
+  {
+    m_rf->RFComReceiver(message);  //Wait for a message
+
+    //Check command
+
+    //Send command to mq_rf ?
+
+    //It's a new configuration?
+    //YES
+    //Set the new configurations
+
+    //NO
+    pthread_mutex_lock(&mutex_sendInfo);
+    //Trigger ts_sendInfo
+    pthread_cond_signal(&ts_sendInfo);
+    pthread_mutex_unlock(&mutex_sendInfo);
+  }
+	/*//while(1)
 	//{
 		((CRFCom*)threadid)->RFComReceiver();
 		((CRFCom*)threadid)->RFComPrintTAddr();
-	//}
+	//}*/
 }
 
 void * CThreadsAnimal :: pv_shockHandler(void *threadid)
