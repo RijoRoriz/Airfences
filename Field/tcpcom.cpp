@@ -1,39 +1,45 @@
-#include <tcpcom.h>
+#include "tcpcom.h"
 
-CTcpCom()::CTcpCom()
+CTcpCom::CTcpCom()
 {
-	memset(&addr, 0, sizeof(addr));
-	host = gethostbyname("172.16.49.01"); /* select IP adress */
-	port = 5000;
+	//memset(&addr, 0, sizeof(addr));
+	host = gethostbyname("10.42.0.76"); /* select IP adress */
+	port = 1200;
 	addr.sin_family = AF_INET; /* select internet protocol */
 	addr.sin_port = port;
 	addr.sin_addr.s_addr = * (long*)(host->h_addr_list[0]); /* set the addr */
 	sd = socket(PF_INET,SOCK_STREAM,0);
 	if(sd<0) {
-	perror("socket not created"); abort();
+	perror("socket not created");
 	}	
 }
 
-bool CTcpCom()::TcpOpen()
+CTcpCom::~CTcpCom()
+{
+	if(m_bconnected==false) TcpComClose();
+}
+
+bool CTcpCom::TcpComOpen()
 {
 	if(connect(sd,(struct sockaddr*)&addr,sizeof(addr))==0) {
-	m_bconnected=TRUE;
-	return TRUE;
+	m_bconnected=true;
+	return true;
 	}
 	else
 	{
 	 printf("socket error");
-	 m_bconnected=FALSE;
-	 return FALSE;
+	 m_bconnected=true;
+	 return false;
 	}
 }
 
-bool CTcpCom()::TcpClose()
+bool CTcpCom::TcpComClose()
 {
 	shutdown(sd,SHUT_RDWR);
+	m_bconnected=false;
 }
 
-int CTcpCom()::TcpComReceive(char * returned)
+int CTcpCom::TcpComReceive(char * returned, int TCPCOMLENGTH)
 {
 	if(m_bconnected){
 	recv(sd,returned,TCPCOMLENGTH,0);
@@ -42,7 +48,7 @@ int CTcpCom()::TcpComReceive(char * returned)
 	else return -1;
 }
 
-int CTcpCom()::TComTransmite(char * info)
+int CTcpCom::TcpComTransmite(char * info, int TCPCOMLENGTH)
 {
 	if(m_bconnected){
 	send(sd,info,TCPCOMLENGTH,0);
