@@ -160,6 +160,11 @@ void * CThreadsAnimal::pv_RFComReceiverHandler(void *threadid)
 
 void * CThreadsAnimal :: pv_shockHandler(void *threadid)
 {
+  //Wait for ts_endProcessing
+
+  //Check which zone is the Animal
+
+  //Turn on the LED zone
 
 }
 
@@ -170,9 +175,14 @@ void * CThreadsAnimal :: pv_batTempHandler(void *threadid)
 
   while(1)
   {
+    //Wait for animal.timeout
+    //Read animal's temperature
     adc.readTemperature();
 
+    //Read animal's battery level
     adc.readBatteryLevel();
+
+    //Send info to mq_batTemp
     delay(3000);
   }
 
@@ -180,62 +190,68 @@ void * CThreadsAnimal :: pv_batTempHandler(void *threadid)
 
 void * CThreadsAnimal :: pv_processinInfoHandler(void *threadid)
 {
-  CAnimal animal;
-  CAdc adc;
+  //Wait for ts_GPSReady
 
+  //Open mq_GPS
 
-  char command[32]; //commando recebido por RF mq_rf
+  //Calculate which zone is the animal
 
-  /*************************
-  command[0-1] - ID_Field
-  command[2-3] - ID_Animal
-  command[4] - Command Type
-  *************************/
+  //Set the animal zone and the timer of the zone
 
-  switch (command[4]) {
-    case 'R': //Reset "ID_Field,ID_Animal,R,Temperature,Battery,GPS,RF,State"
-    /*****************************
-    command[5] - Reset Temperature
-    command[6] - Reset Battery
-    command[7] - Reset GPS
-    command[8] - Reset RF
-    ****************************/
-    if(command[5]){ //Reset Temperature
+  //Trigger ts_endProcessing
 
-    }
-    else if(command[6]){ //Reset Battery
-
-    }
-    else if(command[7]){ //Reset GPS
-
-    }
-    else if(command[8]){ //Reset RF
-
-    }
-    break;
-
-    case 'I':  //Field request animal info "ID_Field,ID_Animal,I,Temperature,Battery,GPS,RF,State"
-    break;
-
-    case 'N': //First Configuration "ID_Field,ID_Animal,N,ID_Animal,GreenZone_x1,GreenZone_x2,GreenZone_y1,GreenZone_y2"
-    /*****************************
-    command[5-6]   - ID_Animal
-    command[7-12]  - GreenZone_x1
-    command[13-18] - GreenZone_x2
-    command[19-24] - GreenZone_y1
-    command[25-29] - GreenZone_y2
-    ****************************/
-
-    SSquare greenZone;
-    greenZone.x1 = 2.0;
-    break;
-
-    case 'C': //New Configuration "ID_Field,ID_Animal,C,GreenZone_x1,GreenZone_x2,GreenZone_y1,GreenZone_y2"
-    break;
-
-    default:
-    break;
-  }
+  // char command[32]; //commando recebido por RF mq_rf
+  //
+  // /*************************
+  // command[0-1] - ID_Field
+  // command[2-3] - ID_Animal
+  // command[4] - Command Type
+  // *************************/
+  //
+  // switch (command[4]) {
+  //   case 'R': //Reset "ID_Field,ID_Animal,R,Temperature,Battery,GPS,RF,State"
+  //   /*****************************
+  //   command[5] - Reset Temperature
+  //   command[6] - Reset Battery
+  //   command[7] - Reset GPS
+  //   command[8] - Reset RF
+  //   ****************************/
+  //   if(command[5]){ //Reset Temperature
+  //
+  //   }
+  //   else if(command[6]){ //Reset Battery
+  //
+  //   }
+  //   else if(command[7]){ //Reset GPS
+  //
+  //   }
+  //   else if(command[8]){ //Reset RF
+  //
+  //   }
+  //   break;
+  //
+  //   case 'I':  //Field request animal info "ID_Field,ID_Animal,I,Temperature,Battery,GPS,RF,State"
+  //   break;
+  //
+  //   case 'N': //First Configuration "ID_Field,ID_Animal,N,ID_Animal,GreenZone_x1,GreenZone_x2,GreenZone_y1,GreenZone_y2"
+  //   /*****************************
+  //   command[5-6]   - ID_Animal
+  //   command[7-12]  - GreenZone_x1
+  //   command[13-18] - GreenZone_x2
+  //   command[19-24] - GreenZone_y1
+  //   command[25-29] - GreenZone_y2
+  //   ****************************/
+  //
+  //   SSquare greenZone;
+  //   greenZone.x1 = 2.0;
+  //   break;
+  //
+  //   case 'C': //New Configuration "ID_Field,ID_Animal,C,GreenZone_x1,GreenZone_x2,GreenZone_y1,GreenZone_y2"
+  //   break;
+  //
+  //   default:
+  //   break;
+  // }
 
 }
 
@@ -250,6 +266,8 @@ void * CThreadsAnimal :: pv_gpsHandler(void *threadid)
   while(1)
   {
     delay(2000);
+    //Wait for animal.timeout
+    //Read animal's coordinates
     gps.readGps();
 
     if(gps.gpsDataStatus()) // Send it to mq_GPS
@@ -260,6 +278,8 @@ void * CThreadsAnimal :: pv_gpsHandler(void *threadid)
       mq_GPS = mq_open(MQGPS, O_RDWR); //Send coordinates
       mq_send(mq_GPS, gpsCoordinates, strlen(gpsCoordinates)+1, 1);
       mq_close(mq_GPS);
+
+      //Trigger ts_GPSReady
 
     }
     else

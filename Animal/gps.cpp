@@ -192,8 +192,8 @@ void CGps :: readGps()
   }
   else //Data not valid - Read again
   {
-    readGps();
     mb_gpsData = false;
+    readGps();
     cout << "Read again..." << endl;
   }
 }
