@@ -16,22 +16,22 @@ int CFieldMap :: m_configureMap(struct SSquare)
 
 }
 
-bool CFieldMap :: m_checkInsideGreen(long, long)
+bool CFieldMap :: m_checkInsideGreen(float latitude, float longitude)
 {
   return true;
 }
 
-bool CFieldMap :: m_checkInsideYellow(long, long)
+bool CFieldMap :: m_checkInsideYellow(float latitude, float longitude)
 {
   return true;
 }
 
-bool CFieldMap :: m_checkInsideRed(long, long)
+bool CFieldMap :: m_checkInsideRed(float latitude, float longitude)
 {
   return true;
 }
 
-bool CFieldMap :: m_checkInsideOut(long, long)
+bool CFieldMap :: m_checkInsideOut(float latitude, float longitude)
 {
   return true;
 }

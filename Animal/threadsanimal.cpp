@@ -11,6 +11,7 @@ pthread_cond_t *ts_GPSReady;
 /***** Objects *****/
 CRFCom *m_rf;
 CGps *m_gps;
+CAnimal *m_animal;
 
 CThreadsAnimal::CThreadsAnimal()
 {
@@ -45,6 +46,7 @@ CThreadsAnimal::CThreadsAnimal()
 
   /***** OBJECT *****/
   m_rf = new CRFCom();
+  m_animal = new CAnimal();
 
   /***** THREADS *****/
   pthread_attr_t thread_attr=setAttr(60);
@@ -132,13 +134,41 @@ void * CThreadsAnimal::pv_RFComSenderHandler(void *threadid)
 void * CThreadsAnimal::pv_RFComReceiverHandler(void *threadid)
 {
   unsigned char message[33];
+  CFieldMap fieldmap;
 
   while(1)
   {
     m_rf->RFComReceiver(message);  //Wait for a message
 
     //Check command
+    switch (message[4]) { //Command Type
+      //Reset Command "ID_Field,ID_Animal,R,Temperature,Battery,GPS,RF,State"
+      case 'R':
+      /******************
+      ******************/
+      break;
 
+      //Request Information "ID_Field,ID_Animal,I,Temperature,Battery,GPS,RF,State"
+      case 'I':
+      break;
+
+      //First Config "ID_Field,ID_Animal,N,ID_Animal,GreenZone_x1,GreenZone_x2,GreenZone_y1,GreenZone_y2"
+      case 'N':
+      //Config Animal Info
+      m_animal->
+      //Config Animal GreenZone
+
+      break;
+
+      //New Config "ID_Field,ID_Animal,C,GreenZone_x1,GreenZone_x2,GreenZone_y1,GreenZone_y2"
+      case 'C':
+      //Config Animal GreenZone
+
+      break;
+
+      default:
+      break;
+    }
     //Send command to mq_rf ?
 
     //It's a new configuration?

@@ -7,8 +7,8 @@
 
 #include "defines.h"
 #include "adc.h"
-//#include "animal.h"
-//#include "fieldmap.h"
+#include "animal.h"
+#include "fieldmap.h"
 #include "gps.h"
 //#include "leds.h"
 #include "NRF905.h"
