@@ -5,9 +5,9 @@
 
 #define ANIMAL_CONF_FILE "/root/AnimalConf.txt"
 
-#define TIME_GREEN_ZONE   30
-#define TIME_YELLOW_ZONE  20
-#define TIME_RED_ZONE     10
+#define TIME_GREEN_ZONE   30000
+#define TIME_YELLOW_ZONE  20000
+#define TIME_RED_ZONE     10000
 
 using namespace std;
 

@@ -3,6 +3,9 @@
 
 #include "defines.h"
 
+#define DIST_TO_YELLOW_ZONE   20
+#define DIST_TO_RED_ZONE      10
+
 using namespace std;
 
 struct SSquare
@@ -15,21 +18,17 @@ struct SSquare
 
 class CFieldMap
 {
-	private:
+private:
 	struct SSquare m_greenzone;
 	struct SSquare m_yellowzone;
 	struct SSquare m_redzone;
 	struct SSquare m_outzone;
 
-	void m_calcGreenzone();
-	void m_calcYellowzone();
-	void m_calcRedzone();
-
-	public:
+public:
 	CFieldMap();
 	~CFieldMap();
 
-	int m_configureMap(struct SSquare);
+	void m_configureMap(struct SSquare greenZone);
 	bool m_checkInsideGreen(float latitude, float longitude);
 	bool m_checkInsideYellow(float latitude, float longitude);
 	bool m_checkInsideRed(float latitude, float longitude);
