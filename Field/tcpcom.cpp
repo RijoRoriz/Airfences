@@ -29,10 +29,8 @@ CTcpCom::~CTcpCom()
 
 bool CTcpCom::TcpComOpen()
 {
-	TcpComPrintInfo();
 	int valor=0;
-	valor=(connect(sd,(const sockaddr*)&addr,sizeof(addr)));
-	if(valor==0) {
+	if(connect(sd,(const sockaddr*)&addr,sizeof(addr))==0) {
 	m_bconnected=true;
 	return true;
 	}

@@ -15,7 +15,7 @@ class CThreadsField
 			pthread_t m_WIFISender;
 			pthread_t m_WIFIReceiver;
 			pthread_t m_processAnimalInfo;
-   		
+
 			/***** PTHREADS BEHAVIOUR *****/
 			static void * m_RFComSenderConfHandler();
 			static void * m_RFComSenderHandler();
@@ -25,6 +25,6 @@ class CThreadsField
 			static void * m_processAnimalInfoHandler();
 			static void m_timerHandler(int);
 			void SetupThread(int prio,pthread_attr_t *pthread_attr,struct sched_param *pthread_param);
-   		
+
 }
 #endif /*THREADSFIELD_H_*/
