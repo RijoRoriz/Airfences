@@ -145,7 +145,8 @@ void CRFCom::RFComSender(unsigned char *TxAddress, unsigned char *Payload)
 		if(Payload!=NULL)
 		{
 		 this->RFComSetPayload(Payload);
-		 printf("Payload not null");
+		 //RFComPrintTPaylo();
+		 //printf("Payload not null");
 		}
 		else
 		{
@@ -168,8 +169,8 @@ void CRFCom::RFComReceiver(unsigned char * returned)
 		wiringPiSPIDataRW(0, returned, 33);
 		digitalWrite(CSN, HIGH); //Disable SPI
 		delay(1);
-		digitalWrite(CE, HIGH); //RX remains ON
-		//digitalWrite(CE, LOW); //Radio enters in standby
+		//digitalWrite(CE, HIGH); //RX remains ON
+		digitalWrite(CE, LOW); //Radio enters in standby
 		delay(1);
 }
 

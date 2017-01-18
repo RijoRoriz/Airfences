@@ -5,9 +5,9 @@
 
 #define ANIMAL_CONF_FILE "/root/AnimalConf.txt"
 
-#define TIME_GREEN_ZONE   30000
-#define TIME_YELLOW_ZONE  20000
-#define TIME_RED_ZONE     10000
+#define TIME_GREEN_ZONE   30
+#define TIME_YELLOW_ZONE  20
+#define TIME_RED_ZONE     10
 
 using namespace std;
 
@@ -35,7 +35,7 @@ class CAnimal
 		int getAnimalZone();
 
 		char * checkCommand(char *command); //parcing dos comandos
-		void setAnimalConf(char message);
+		void setAnimalConf(unsigned char* message);
 		void saveAnimalConf(); //Save Animal configuations  (ID, FieldID, field coordinates)
 		void loadAnimalConf();
 
