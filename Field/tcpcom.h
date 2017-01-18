@@ -5,9 +5,7 @@
 #include <sys/types.h>
 #include <resolv.h>
 #include <netdb.h>
-#include <defines.h>
-
-#define TCPCOMLENGTH 32
+#include <stdio.h>
 
 class CTcpCom
 {
@@ -22,8 +20,8 @@ class CTcpCom
 		~CTcpCom();
 		bool TcpComOpen();
 		bool TcpComClose();
-		int TcpComReceive(char * returned);
-		int TcpComTransmite(char * info);
+		int TcpComReceive(char * returned, int length);
+		int TcpComTransmite(char * info, int length);
 };
 
 #endif /*TCPCOM_H*/
