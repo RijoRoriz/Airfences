@@ -6,6 +6,7 @@
 #include <resolv.h>
 #include <netdb.h>
 #include <stdio.h>
+#include <iostream>
 
 class CTcpCom
 {
@@ -14,7 +15,7 @@ class CTcpCom
 		struct sockaddr_in addr;
 		int sd, port;
 		bool m_bconnected;
-	
+
 	public:
 		CTcpCom();
 		~CTcpCom();
@@ -22,7 +23,7 @@ class CTcpCom
 		bool TcpComClose();
 		int TcpComReceive(char * returned, int length);
 		int TcpComTransmite(char * info, int length);
+		void TcpComPrintInfo();
 };
 
 #endif /*TCPCOM_H*/
-	
