@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <sys/time.h>
+#include <signal.h>
 #include <iostream>
 
 #include <wiringPi.h>
