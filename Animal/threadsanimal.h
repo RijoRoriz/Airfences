@@ -10,20 +10,8 @@
 #include "animal.h"
 #include "fieldmap.h"
 #include "gps.h"
-//#include "leds.h"
+#include "leds.h"
 #include "NRF905.h"
-
-// /***** MUTEX *****/
-// pthread_mutex_t *mutex_sendInfo;
-//
-// /***** SIGNALS *****/
-// pthread_cond_t *ts_sendInfo;
-// pthread_cond_t *ts_endProcessing;
-// pthread_cond_t *ts_GPSReady;
-//
-// /***** Objects *****/
-// CRFCom *m_rf;
-// CGps *m_gps;
 
 using namespace std;
 
@@ -35,11 +23,6 @@ public:
 	void run();
 
 private:
-
-	/***** QUEUES *****/
-	mqd_t mq_GPS;
-	mqd_t mq_rf;
-	mqd_t mq_batTemp;
 
 	/***** PTHREADS *****/
 	pthread_t t_shock;
