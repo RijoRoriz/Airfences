@@ -5,7 +5,7 @@
 #define MAX_TMP36_OUTPUT 2.0
 #define MIN_TMP36_OUTPUT 0.1
 
-#define MIN_BATTERY_LEVEL 1.5
+
 
 using namespace std;
 

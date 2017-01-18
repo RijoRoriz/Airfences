@@ -13,8 +13,8 @@
 #include <mqueue.h>
 #include <pthread.h>
 
-#define MQSENSORS      "/mq_sensors"
-#define MQSENSORSLEN   2
+#define MQBATTEMP      "/mq_batTemp"
+#define MQBATTEMPLEN   6
 #define MQGPS          "/mq_gps"
 #define MQGPSLEN       24
 #define MQWIFI         "/mq_wifi"
@@ -22,6 +22,7 @@
 #define MQRFCOM        "/mq_rf"
 #define MQRFCOMLEN     32
 
+#define MIN_BATTERY_LEVEL 1.5
 
 #define OUTZONE     4
 #define REDZONE     3

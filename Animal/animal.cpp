@@ -2,12 +2,52 @@
 
 CAnimal :: CAnimal()
 {
+  mi_Zone = 0;
+
 
 }
 
 CAnimal :: ~CAnimal()
 {
 
+}
+
+void CAnimal :: setAnimalTimeout(int zone)
+{
+  switch(zone)
+  {
+    //GREEN ZONE
+    case 1:
+    mi_timeout = TIME_GREEN_ZONE;
+    break;
+    //YELLOW ZONE
+    case 2:
+    mi_timeout = TIME_YELLOW_ZONE;
+    break;
+    //RED ZONE
+    case 3:
+    mi_timeout = TIME_RED_ZONE;
+    break;
+    //OUTZONE
+    default:
+    mi_timeout = TIME_RED_ZONE;
+    break;
+  }
+}
+
+int CAnimal :: getAnimalTimeout()
+{
+  return mi_timeout;
+}
+
+void CAnimal :: setAnimalZone(int zone)
+{
+  mi_Zone = zone;
+}
+
+int CAnimal :: getAnimalZone()
+{
+  return mi_Zone;
 }
 
 char * CAnimal :: checkCommand(char *command)
@@ -52,6 +92,87 @@ char * CAnimal :: checkCommand(char *command)
 
 
   return 0;
+}
+
+//First time that the configs are saved
+void CAnimal :: setAnimalConf(char message)
+{
+  uint16_t idAnimalFabric;
+  int16_t aux_degrees;
+  uint32_t aux_degrees_dec;
+  float totalDegrees;
+
+  SSquare greenZone;
+
+  //message[0-1] - ID_Field
+  mui_idField = ((message[0] << 8) | message[1]);
+
+  //message[2-3] - Fabric ID_Animal = 0
+  idAnimalFabric = ((message[2] << 8) | message[3]);
+
+  //message[5-6] - ID_Animal to set
+  mui_idAnimal = ((message[5] << 8) | message[6]);
+
+  //COORDINATES OF THE GREEN ZONE
+  //message[7-11] - latitude 1 greenZone
+  aux_degrees = message[7]; //Graus -90º a 90º
+  aux_degrees_dec = (message[8] << 24 | message[9] << 16 | message[10] << 8 | message[11]);
+
+  totalDegrees = (abs(aux_degrees) + static_cast<float>(aux_degrees_dec)/100000);
+
+  if(aux_degrees < 0) {
+    totalDegrees *= -1;
+  }
+  else {
+    totalDegrees *= 1;
+  }
+
+  greenZone.lat1 = totalDegrees;
+
+  //message[12-16] - latitude 2 greenZone
+  aux_degrees = message[12]; //Graus -90º a 90º
+  aux_degrees_dec = (message[13] << 24 | message[14] << 16 | message[15] << 8 | message[16]);
+
+  totalDegrees = (abs(aux_degrees) + static_cast<float>(aux_degrees_dec)/100000);
+
+  if(aux_degrees < 0) {
+    totalDegrees *= -1;
+  }
+  else {
+    totalDegrees *= 1;
+  }
+
+  greenZone.lat2 = totalDegrees;
+
+  //message[17-22] - longitude 1 greenZone
+  aux_degrees = ((message[17] << 8) | message[18]); //graus -180º a 180º
+  aux_degrees_dec = (message[19] << 24 | message[20] << 16 | message[21] << 8 | message[22]);
+
+  totalDegrees = (abs(aux_degrees) + static_cast<float>(aux_degrees_dec)/100000);
+
+  if(aux_degrees < 0) {
+    totalDegrees *= -1;
+  }
+  else {
+    totalDegrees *= 1;
+  }
+
+  greenZone.long1 = totalDegrees;
+
+  //message[23-28] - longitude 2 greenZone
+  aux_degrees = ((message[23] << 8) | message[24]); //graus -180º a 180º
+  aux_degrees_dec = (message[25] << 24 | message[26] << 16 | message[27] << 8 | message[28]);
+
+  totalDegrees = (abs(aux_degrees) + static_cast<float>(aux_degrees_dec)/100000);
+
+  if(aux_degrees < 0) {
+    totalDegrees *= -1;
+  }
+  else {
+    totalDegrees *= 1;
+  }
+
+  greenZone.long2 = totalDegrees;
 }
 
 void CAnimal :: saveAnimalConf()

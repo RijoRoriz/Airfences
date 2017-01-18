@@ -91,23 +91,3 @@ void CLeds :: batteryWarning()
 	digitalWrite(PWR_STATUS , LOW);
 	delay(1000);
 }
-
-
-int main()
-{
-	CLeds led;
-
-	while(1)
-	{
-		led.outsideZone();
-		delay(500);
-		led.turnOFF();
-		delay(500);
-	}
-
-//	led.redZone();
-//	led.yellowZone();
-//	led.greenZone();
-
-	return 0;
-}
