@@ -29,6 +29,7 @@
 #define REDZONE     3
 #define YELLOWZONE  2
 #define GREENZONE   1
+#define NOZONE      0
 
 /*******************************************************************************
                               ADC - ADS1015

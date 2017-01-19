@@ -33,46 +33,25 @@ void CFieldMap :: m_configureMap(struct SSquare greenZone)
   m_outzone.long2 = m_redzone.long2;
 }
 
-bool CFieldMap :: m_checkInsideGreen(float latitude, float longitude)
+int CFieldMap :: mi_checkAnimalZone(float latitude, float longitude)
 {
   if((m_greenzone.lat1 > latitude) && (m_greenzone.lat2 < latitude)
   && (m_greenzone.long1 > longitude) && (m_greenzone.long2 < longitude)) {
-    return true;
+    return GREENZONE;
   }
-  else {
-    return false;
-  }
-}
-
-bool CFieldMap :: m_checkInsideYellow(float latitude, float longitude)
-{
-  if((m_yellowzone.lat1 > latitude) && (m_yellowzone.lat2 < latitude)
+  else if((m_yellowzone.lat1 > latitude) && (m_yellowzone.lat2 < latitude)
   && (m_yellowzone.long1 > longitude) && (m_yellowzone.long2 < longitude)) {
-    return true;
+    return YELLOWZONE;
   }
-  else {
-    return false;
-  }
-}
-
-bool CFieldMap :: m_checkInsideRed(float latitude, float longitude)
-{
-  if((m_redzone.lat1 > latitude) && (m_redzone.lat2 < latitude)
+  else if((m_redzone.lat1 > latitude) && (m_redzone.lat2 < latitude)
   && (m_redzone.long1 > longitude) && (m_redzone.long2 < longitude)) {
-    return true;
+    return REDZONE;
   }
-  else {
-    return false;
-  }
-}
-
-bool CFieldMap :: m_checkInsideOut(float latitude, float longitude)
-{
-  if((m_redzone.lat1 < latitude) || (m_redzone.lat2 > latitude)
+  else if((m_redzone.lat1 < latitude) || (m_redzone.lat2 > latitude)
   || (m_redzone.long1 < longitude) || (m_redzone.long2 > longitude)) {
-    return true;
+    return OUTZONE;
   }
   else {
-    return false;
+    return NOZONE;
   }
 }

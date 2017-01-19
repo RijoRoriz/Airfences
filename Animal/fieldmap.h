@@ -10,10 +10,10 @@ using namespace std;
 
 struct SSquare
 {
-	float lat1;  // first x coordinate
-	float long1; // first y coordinate
-	float lat2;  // second x coordinate
-	float long2; // second y coordinate
+	float lat1;
+	float long1;
+	float lat2;
+	float long2;
 };
 
 class CFieldMap
@@ -29,10 +29,8 @@ public:
 	~CFieldMap();
 
 	void m_configureMap(struct SSquare greenZone);
-	bool m_checkInsideGreen(float latitude, float longitude);
-	bool m_checkInsideYellow(float latitude, float longitude);
-	bool m_checkInsideRed(float latitude, float longitude);
-	bool m_checkInsideOut(float latitude, float longitude);
+	int mi_checkAnimalZone(float latitude, float longitude);
+
 };
 
 #endif /*FIELDMAP_H_*/

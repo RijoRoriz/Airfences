@@ -7,6 +7,7 @@ pthread_mutex_t *mutex_GPSReady;
 pthread_mutex_t *mutex_endProcessing;
 pthread_mutex_t *mutex_readGPS;
 pthread_mutex_t *mutex_readBatTemp;
+pthread_mutex_t *mutex_animalZone;
 
 /***** SIGNALS *****/
 pthread_cond_t *ts_sendInfo;
@@ -24,9 +25,11 @@ mqd_t mq_rf;
 mqd_t mq_batTemp;
 
 /***** Objects *****/
-CRFCom *m_rf;
+CRFCom *p_rf;
 //CGps *m_gps;
-CAnimal *m_animal;
+CAdc *p_adc;
+CAnimal *p_animal;
+CFieldMap *p_fieldMap
 
 CThreadsAnimal::CThreadsAnimal()
 {
@@ -43,6 +46,8 @@ CThreadsAnimal::CThreadsAnimal()
   int mutex_readGPS_status=pthread_mutex_init(mutex_readGPS, NULL);
   mutex_readBatTemp = new pthread_mutex_t();
   int mutex_readBatTemp_status=pthread_mutex_init(mutex_readBatTemp, NULL);
+  mutex_animalZone = new pthread_mutex_t();
+  int mutex_animalZone_status=pthread_mutex_init(mutex_animalZone, NULL);
 
   /***** SIGNALS *****/
   ts_sendInfo = new pthread_cond_t();
@@ -87,16 +92,18 @@ CThreadsAnimal::CThreadsAnimal()
   mq_setattr(mq_batTemp, &attr, NULL); // set de attr
 
   /***** OBJECT *****/
-  m_rf = new CRFCom();
-  m_animal = new CAnimal();
+  p_rf = new CRFCom();
+  p_animal = new CAnimal();
+  p_fieldMap = new CFieldMap();
+  p_adc = new CAdc();
 
-  m_animal->setAnimalTimeout(GREENZONE);
+  p_animal->setAnimalTimeout(GREENZONE);
 
   /***** THREADS *****/
   pthread_attr_t thread_attr=setAttr(60);
-  int rfS_status = pthread_create(&t_RFComSender,&thread_attr,pv_RFComSenderHandler,(void*)m_rf);
+  int rfS_status = pthread_create(&t_RFComSender,&thread_attr,pv_RFComSenderHandler,(void*)p_rf);
   int rfR_status = pthread_create(&t_RFComReceiver, &thread_attr,
-  pv_RFComReceiverHandler, (void*)m_rf);
+  pv_RFComReceiverHandler, (void*)p_rf);
 
   thread_attr=setAttr(90);
   int shock_status = pthread_create(&t_shock, &thread_attr,pv_shockHandler, NULL);
@@ -196,6 +203,8 @@ void CThreadsAnimal::pv_handleTimer(int sig, siginfo_t *si, void *uc)
   pthread_mutex_lock(mutex_readGPS);
   pthread_cond_signal(ts_readGPS);
   pthread_mutex_unlock(mutex_readGPS);
+
+  //Update timer values
 }
 
 
@@ -229,7 +238,7 @@ void * CThreadsAnimal::pv_RFComSenderHandler(void *threadid)
     // }
     //
     //Send requested information
-    m_rf->RFComSender(NULL, requestedInfo);
+    p_rf->RFComSender(NULL, requestedInfo);
     pthread_mutex_lock(mutex_readInfo);
     pthread_cond_signal(ts_readInfo);
     pthread_mutex_unlock(mutex_readInfo);
@@ -239,7 +248,6 @@ void * CThreadsAnimal::pv_RFComSenderHandler(void *threadid)
 void * CThreadsAnimal::pv_RFComReceiverHandler(void *threadid)
 {
   unsigned char message[33];
-  CFieldMap fieldmap;
   cout << "thread pv_RFComReceiverHandler" << endl;
 
   while(1)
@@ -247,7 +255,7 @@ void * CThreadsAnimal::pv_RFComReceiverHandler(void *threadid)
     pthread_cond_wait(ts_readInfo, mutex_readInfo);
 
     cout << "Waiting message" << endl;
-    m_rf->RFComReceiver(message);  //Wait for a message
+    p_rf->RFComReceiver(message);  //Wait for a message
 
     cout << "MESSAGE RECEIVEID: ";
     for(int i=0; i<33; i++)
@@ -257,104 +265,73 @@ void * CThreadsAnimal::pv_RFComReceiverHandler(void *threadid)
     cout << endl;
 
     //Check command
-    // switch (message[4]) { //Command Type
-    //   //Reset Command "ID_Field,ID_Animal,R,Temperature,Battery,GPS,RF,State"
-    //   case 'R':
-    //   if(message[5] == 1) { //Reset Temperature
-    //
-    //   }
-    //   if(message[6] == 1) { //Reset Battery
-    //
-    //   }
-    //   if(message[7] == 1) { //Reset GPS
-    //
-    //   }
-    //   if(message[8] == 1) { //Reset RF
-    //
-    //   }
-    //   break;
-    //
-    //   //Request Information "ID_Field,ID_Animal,I,Temperature,Battery,GPS,RF,State"
-    //   case 'I':
-    //   break;
-    //
-    //   //First Config "ID_Field,ID_Animal,N,ID_Animal,GreenZone_x1,GreenZone_x2,GreenZone_y1,GreenZone_y2"
-    //   case 'N':
-    //   //Config Animal Info
-    //
-    //   //Config Animal GreenZone
-    //
-    //   break;
-    //
-    //   //New Config "ID_Field,ID_Animal,C,GreenZone_x1,GreenZone_x2,GreenZone_y1,GreenZone_y2"
-    //   case 'C':
-    //   //Config Animal GreenZone
-    //
-    //   break;
-    //
-    //   default:
-    //   break;
-    // }
-    //Send command to mq_rf ?
+    switch (message[4]) { //Command Type
+      //Reset Command "ID_Field,ID_Animal,R,Temperature,Battery,GPS,RF,State"
+      case 'R':
+      if(message[5] == 1) { //Reset Temperature
 
-    //It's a new configuration?
-    //YES
-    //Set the new configurations
+      }
+      if(message[6] == 1) { //Reset Battery
 
-    //NO
-    pthread_mutex_lock(mutex_sendInfo);
-    //Trigger ts_sendInfo
-    pthread_cond_signal(ts_sendInfo);
-    pthread_mutex_unlock(mutex_sendInfo);
+      }
+      if(message[7] == 1) { //Reset GPS
+
+      }
+      if(message[8] == 1) { //Reset RF
+
+      }
+      break;
+
+      //Request Information "ID_Field,ID_Animal,I,Temperature,Battery,GPS,RF,State"
+      case 'I':
+      //Send message to mq_rf?
+
+      pthread_mutex_lock(mutex_sendInfo);
+      //Trigger ts_sendInfo
+      pthread_cond_signal(ts_sendInfo);
+      pthread_mutex_unlock(mutex_sendInfo);
+      break;
+
+      //First Config or New Conf
+      case 'N':
+      case 'C':
+      //Config Animal Info
+      p_animal->setAnimalConf(message);
+      //Config Animal GreenZone
+      p_fieldMap->m_configureMap(p_animal->getAnimalGreenZone());
+      break;
+
+      default:
+      break;
+    }
+
   }
 }
 
 void * CThreadsAnimal :: pv_shockHandler(void *threadid)
 {
-  int8_t zone;
+  int iAnimalZone;
   CLeds leds;
   cout << "thread pv_shockHandler" << endl;
 
-  //while(1)
-  //{
+  while(1)
+  {
     //Wait for ts_endProcessing
-    //pthread_mutex_lock(mutex_endProcessing);
-    //Wait for ts_GPSReady
-    //pthread_cond_wait(ts_endProcessing, mutex_endProcessing);
-    //pthread_mutex_unlock(mutex_endProcessing);
+    pthread_cond_wait(ts_endProcessing, mutex_endProcessing);
 
     //Check which zone is the Animal
-    // zone = GREENZONE;
-    //
-    // //Turn on the LED zone
-    // switch (zone) {
-    //   case GREENZONE:
-    //   leds.greenZone();
-    //   break;
-    //
-    //   case YELLOWZONE:
-    //   leds.yellowZone();
-    //   break;
-    //
-    //   case REDZONE:
-    //   leds.redZone();
-    //   break;
-    //
-    //   case OUTZONE:
-    //   leds.outsideZone();
-    //   break;
-    //
-    //   default:
-    //   break;
-    // }
+    // pthread_mutex_lock(mutex_animalZone);
+    // iAnimalZone = p_animal->getAnimalZone();
+    // pthread_mutex_unlock(mutex_animalZone);
 
-  //}
+    //Turn on the LED zone
+    leds.m_turnON_LedZone(iAnimalZone);
+
+  }
 }
 
 void * CThreadsAnimal :: pv_batTempHandler(void *threadid)
 {
-  CAdc adc;
-  unsigned long previous;
   float ftemperature, fbatteryLevel;
   unsigned char message[6];
   char cmessage[6];
@@ -362,9 +339,7 @@ void * CThreadsAnimal :: pv_batTempHandler(void *threadid)
 
   while(1)
   {
-    //previous = millis();
     //Wait for animal.timeout
-    //while((millis() - previous) < m_animal->getAnimalTimeout());
     pthread_cond_wait(ts_readBatTemp, mutex_readBatTemp);
     cout << "BAT TEMP START READING" << endl;
     // memset(message, '\0', 6);
@@ -422,29 +397,32 @@ void * CThreadsAnimal :: pv_batTempHandler(void *threadid)
 
 void * CThreadsAnimal :: pv_processinInfoHandler(void *threadid)
 {
+  int iAnimalZone;
   cout << "thread pv_processinInfoHandler" << endl;
 
-  // while (1)
-  // {
-  //   //pthread_mutex_lock(mutex_GPSReady);
-  //   //Wait for ts_GPSReady
-  //   //pthread_cond_wait(ts_GPSReady, mutex_GPSReady);
-  //   //pthread_mutex_unlock(mutex_GPSReady);
-  //
-  //   //Open mq_GPS
-  //
-  //   //Calculate which zone is the animal
-  //   cout << "Calculating Animal Zone" << endl;
-  //
-  //   //Set the animal zone and the timer of the zone
-  //   //m_animal->setAnimalTimeout(int zone);
-  //
-  //
-  //   // pthread_mutex_lock(mutex_endProcessing);
-  //   // //Trigger ts_endProcessing
-  //   // pthread_cond_signal(ts_endProcessing);
-  //   // pthread_mutex_unlock(mutex_endProcessing);
-  // }
+  while (1)
+  {
+    //Wait for ts_GPSReady
+    pthread_cond_wait(ts_GPSReady, mutex_GPSReady);
+
+    //Open mq_GPS
+
+    //Calculate which zone is the animal
+    cout << "Calculating Animal Zone" << endl;
+    //iAnimalZone = p_fieldMap->mi_checkAnimalZone(lat1, lat2);
+
+    //Set the animal zone and the timer of the zone
+    //pthread_mutex_lock(mutex_animalZone);
+    //p_animal->setAnimalZone(iAnimalZone);
+    //pthread_mutex_unlock(mutex_animalZone);
+    //p_animal->setAnimalTimeout(iAnimalZone);
+
+
+    pthread_mutex_lock(mutex_endProcessing);
+    //Trigger ts_endProcessing
+    pthread_cond_signal(ts_endProcessing);
+    pthread_mutex_unlock(mutex_endProcessing);
+  }
 }
 
 void * CThreadsAnimal :: pv_gpsHandler(void *threadid)
@@ -460,7 +438,7 @@ void * CThreadsAnimal :: pv_gpsHandler(void *threadid)
   {
     //previous = millis();
     //Wait for animal.timeout
-    //while((millis() - previous) < m_animal->getAnimalTimeout());
+    //while((millis() - previous) < p_animal->getAnimalTimeout());
     pthread_cond_wait(ts_readGPS, mutex_readGPS);
     cout << "GPS START READING" << endl;
     //Read animal's coordinates

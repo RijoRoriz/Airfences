@@ -19,22 +19,14 @@
 class CLeds
 {
 	private:
-		bool mb_greenLed;
-		bool mb_yellowLed;
-		bool mb_redLed;
 
 	public:
 		CLeds();
 		~CLeds();
 
-		void outsideZone();
-		void greenZone();
-		void yellowZone();
-		void redZone();
-
-		void turnOFF();
-
-		void batteryWarning();
+		void m_turnON_LedZone(int zone);
+		void m_turnOFF();
+		void m_batteryWarning();
 
 };
 

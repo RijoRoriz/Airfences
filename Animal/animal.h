@@ -11,6 +11,14 @@
 
 using namespace std;
 
+struct SSquare
+{
+	float lat1;  // first x coordinate
+	float long1; // first y coordinate
+	float lat2;  // second x coordinate
+	float long2; // second y coordinate
+};
+
 class CAnimal
 {
 	private:
@@ -19,9 +27,11 @@ class CAnimal
 		uint16_t mui_idAnimal;
 		uint16_t mui_idField;
 
+		SSquare map_greenZone;
+
 		int mi_timeout;
-		float mi_Temp;
-		float mf_Bat;
+		//float mi_Temp;
+		//float mf_Bat;
 
 
 	public:
@@ -34,8 +44,8 @@ class CAnimal
 		void setAnimalZone(int zone);
 		int getAnimalZone();
 
-		char * checkCommand(char *command); //parcing dos comandos
 		void setAnimalConf(unsigned char* message);
+		SSquare getAnimalGreenZone();
 		void saveAnimalConf(); //Save Animal configuations  (ID, FieldID, field coordinates)
 		void loadAnimalConf();
 
