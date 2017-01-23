@@ -1,15 +1,7 @@
 #ifndef FIELD_H_
 #define FIELD_H_
 
-#include <mqueue.h> 
-#include <stdio.h>
-#include <sys/time.h>
-#include <unistd.h>
-#include <signal.h>
-#include "threadsfield.h"
 #include "fieldmap.h"
-
-
 
 struct Sanimal
 {
@@ -22,40 +14,23 @@ struct SanimalRegist
 	int id;
 	int zone;
 	int bat;
-	bool coorX;
-	bool coorY;
+	double coorX;
+	double coorY;
 	float temp;
-	
+
 };
 
-
-class Cfield
+class CField
 {
 	private:
-		struct SSquare m_fieldzone;
+		CFieldMap fieldmap;
 		struct Sanimal *mL_greenList;
 		struct Sanimal *mL_yellowList;
 		struct Sanimal *mL_redList;
 		struct SanimalRegist *mL_sendInfoList;
-		int mi_setRWFlag(bool);	
-		/***** Timer *****/
-		struct itimerval timer;
-		
-	public: 
-		/***** Message Queue *****/
-		mqd_t mq_wifi;
-		mqd_t mq_rf;
-		
-		/***** Mutex *****/
-		pthread_mutex_t mutex_newConfig;
-		pthread_mutex_t mutex_newInfo;
-		
-		/***** Condition Variables (SIGNALS) *****/
-		pthread_cond_t s_newConfig;
-		pthread_cond_t s_newInfo;
-		Cfield();
-		~Cfield();
-	
+	public:
+		CField(){};
+		~CField(){};
 };
 
 #endif /*FIELD_H_*/
