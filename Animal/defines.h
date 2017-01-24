@@ -6,6 +6,7 @@
 #include <sys/time.h>
 #include <signal.h>
 #include <iostream>
+#include <fstream>  
 
 #include <wiringPi.h>
 #include <wiringPiSPI.h>

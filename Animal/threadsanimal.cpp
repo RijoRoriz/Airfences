@@ -97,7 +97,7 @@ CThreadsAnimal::CThreadsAnimal()
   p_fieldMap = new CFieldMap();
   p_adc = new CAdc();
 
-  p_animal->setAnimalTimeout(GREENZONE);
+  p_animal->m_setAnimalTimeout(GREENZONE);
 
   /***** THREADS *****/
   pthread_attr_t thread_attr=setAttr(60);
@@ -196,7 +196,7 @@ void CThreadsAnimal::pv_handleTimer(int sig, siginfo_t *si, void *uc)
 {
   timer_t timerid;
   struct itimerspec its;
-  int timeout = p_animal->getAnimalTimeout();
+  int timeout = p_animal->mi_getAnimalTimeout();
   timerid = si->si_timerid;
 
   //cout << "Timeout" << endl;
@@ -307,9 +307,9 @@ void * CThreadsAnimal::pv_RFComReceiverHandler(void *threadid)
       case 'N':
       case 'C':
       //Config Animal Info
-      p_animal->setAnimalConf(message);
+      p_animal->m_setAnimalConf(message);
       //Config Animal GreenZone
-      p_fieldMap->m_configureMap(p_animal->getAnimalGreenZone());
+      p_fieldMap->m_configureMap(p_animal->mssq_getAnimalGreenZone());
       break;
 
       default:
@@ -332,7 +332,7 @@ void * CThreadsAnimal :: pv_shockHandler(void *threadid)
 
     //Check which zone is the Animal
     pthread_mutex_lock(mutex_animalZone);
-    iAnimalZone = p_animal->getAnimalZone();
+    iAnimalZone = p_animal->mi_getAnimalZone();
     pthread_mutex_unlock(mutex_animalZone);
 
     //Turn on the LED zone
@@ -424,8 +424,8 @@ void * CThreadsAnimal :: pv_processinInfoHandler(void *threadid)
 
     //Set the animal zone and the timer of the zone
     pthread_mutex_lock(mutex_animalZone);
-    p_animal->setAnimalZone(iAnimalZone);
-    p_animal->setAnimalTimeout(iAnimalZone);
+    p_animal->m_setAnimalZone(iAnimalZone);
+    p_animal->m_setAnimalTimeout(iAnimalZone);
     pthread_mutex_unlock(mutex_animalZone);
 
 
@@ -449,7 +449,7 @@ void * CThreadsAnimal :: pv_gpsHandler(void *threadid)
   {
     //previous = millis();
     //Wait for animal.timeout
-    //while((millis() - previous) < p_animal->getAnimalTimeout());
+    //while((millis() - previous) < p_animal->mi_getAnimalTimeout());
     pthread_cond_wait(ts_readGPS, mutex_readGPS);
     cout << "GPS START READING" << endl;
     //Read animal's coordinates

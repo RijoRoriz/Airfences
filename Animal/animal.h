@@ -38,20 +38,19 @@ class CAnimal
 		CAnimal();
 		~CAnimal();
 
-		void setAnimalTimeout(int zone);
-		int getAnimalTimeout();
+		void m_setAnimalTimeout(int zone);
+		int mi_getAnimalTimeout();
 
-		void setAnimalZone(int zone);
-		int getAnimalZone();
+		void m_setAnimalZone(int zone);
+		int mi_getAnimalZone();
 
-		void setAnimalConf(unsigned char* message);
-		SSquare getAnimalGreenZone();
-		void saveAnimalConf(); //Save Animal configuations  (ID, FieldID, field coordinates)
-		void loadAnimalConf();
+		void m_setAnimalConf(unsigned char* message);
+		SSquare mssq_getAnimalGreenZone();
+		void m_saveAnimalConf(); //Save Animal configuations  (ID, FieldID, field coordinates)
+		void m_loadAnimalConf();
 
-		bool saveAnimalInfo();
-		bool loadAnimalInfo();
-		bool updateAnimalInfo();
+		//bool saveAnimalInfo();
+		//bool loadAnimalInfo();
 
 };
 
