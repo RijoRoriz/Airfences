@@ -23,7 +23,6 @@ class CField
 		~CField();
 		void setAnimal(int id, int list);
 	 	int getAnimal(int list);
-		int removeAnimal(int id);
 };
 
 #endif /*FIELD_H_*/

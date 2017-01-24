@@ -120,7 +120,3 @@ int CField::getAnimal(int list)
   }
 
 }
-int CField::removeAnimal(int id)
-{
-
-}
