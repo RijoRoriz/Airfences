@@ -1,6 +1,15 @@
 #ifndef THREADSFIELD_H_
 #define THREADSFIELD_H_
 
+#include <iostream>
+#include <pthread.h>
+#include <mqueue.h>
+
+#include "defines.h"
+#include "NRF905.h"
+#include "tcpcom.h"
+#include "field.h"
+
 class CThreadsField
 {
 	public:
@@ -9,22 +18,24 @@ class CThreadsField
         void run();
    private:
    		/***** PTHREADS *****/
-			pthread_t m_RFComSenderConf;
-			pthread_t m_RFComSender;
-			pthread_t m_RFComReceiver;
-			pthread_t m_WIFISender;
-			pthread_t m_WIFIReceiver;
-			pthread_t m_processAnimalInfo;
+			pthread_t t_RFComSender;
+			pthread_t t_RFComReceiver;
+			pthread_t t_WIFIComSender;
+			pthread_t t_WIFIComReceiver;
+			pthread_t t_processAnimalInfo;
+
+			//static void pv_timerHandler(int sig, siginfo_t *si, void *uc);
+			pthread_attr_t setAttr(int prio);
+			//void pv_initTimer();
 
 			/***** PTHREADS BEHAVIOUR *****/
-			static void * m_RFComSenderConfHandler();
-			static void * m_RFComSenderHandler();
-			static void * m_RFComReceiverHandler();
-			static void * m_WIFISenderHandler();
-			static void * m_WIFIReceiverHandler();
-			static void * m_processAnimalInfoHandler();
-			static void m_timerHandler(int);
-			void SetupThread(int prio,pthread_attr_t *pthread_attr,struct sched_param *pthread_param);
+			static void * pv_RFComSenderConfHandler(void *threadid);
+			static void * pv_RFComSenderHandler(void *threadid);
+			static void * pv_RFComReceiverHandler(void *threadid);
+			static void * pv_WIFIComSenderHandler(void *threadid);
+			static void * pv_WIFIComReceiverHandler(void *threadid);
+			static void * pv_processAnimalInfoHandler(void *threadid);
 
-}
+
+};
 #endif /*THREADSFIELD_H_*/
