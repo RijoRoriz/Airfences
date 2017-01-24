@@ -6,18 +6,7 @@
 struct Sanimal
 {
 	int id;
-	int zone;
-};
-
-struct SanimalRegist
-{
-	int id;
-	int zone;
-	int bat;
-	double coorX;
-	double coorY;
-	float temp;
-
+	Sanimal * pointer;
 };
 
 class CField
@@ -29,8 +18,12 @@ class CField
 		struct Sanimal *mL_redList;
 		struct SanimalRegist *mL_sendInfoList;
 	public:
-		CField(){};
-		~CField(){};
+
+		CField();
+		~CField();
+		void setAnimal(int id, int list);
+	 	int getAnimal(int list);
+		int removeAnimal(int id);
 };
 
 #endif /*FIELD_H_*/

@@ -10,6 +10,17 @@
 #include "tcpcom.h"
 #include "field.h"
 
+struct SanimalRegist
+{
+	int id;
+	int zone;
+	int bat;
+	double coorX;
+	double coorY;
+	float temp;
+	SanimalRegist *pointer;
+};
+
 class CThreadsField
 {
 	public:

@@ -23,6 +23,7 @@ mqd_t mq_rf;
 CRFCom *p_rf;
 CField *p_field;
 CTcpCom *p_tcpcom;
+SanimalRegist *animalRegists;
 
 CThreadsField::CThreadsField()
 {
@@ -40,11 +41,11 @@ CThreadsField::CThreadsField()
   ts_sendInfoTcp = new pthread_cond_t();
   int ts_sendInfoTcp_status=pthread_cond_init(ts_sendInfoTcp, NULL);
   ts_readInfoTcp = new pthread_cond_t();
-  int ts_readInfoTcp_status=pthread_cond_init(ts_readInfoRF, NULL);
+  int ts_readInfoTcp_status=pthread_cond_init(ts_readInfoTcp, NULL);
   ts_sendInfoRF = new pthread_cond_t();
-  int ts_sendInfoRF_status=pthread_cond_init(ts_sendInfoTcp, NULL);
+  int ts_sendInfoRF_status=pthread_cond_init(ts_sendInfoRF, NULL);
   ts_readInfoRF = new pthread_cond_t();
-  int ts_readInfoRF_status=pthread_cond_init(ts_readInfoTcp, NULL);
+  int ts_readInfoRF_status=pthread_cond_init(ts_readInfoRF, NULL);
 
     /***** QUEUES *****/
 
@@ -52,6 +53,7 @@ CThreadsField::CThreadsField()
   p_field = new CField();
   p_rf = new CRFCom();
   p_tcpcom = new CTcpCom();
+  animalRegists=NULL;
 
     /***** THREADS *****/
   pthread_attr_t thread_attr=setAttr(60); //
@@ -65,6 +67,17 @@ CThreadsField::CThreadsField()
     cout << "ERROR CREATING THREAD" << endl;
     exit(EXIT_FAILURE);
   }
+
+  /***** OBJECTS CONF *****/
+  uint8_t addrf[4];
+  addrf[0]= 0xFF;
+  addrf[1]= 0xFF;
+  addrf[2]= 0x00;
+  addrf[3]= 0x00;
+
+  p_rf->RFComSetAddR(addrf);
+  run();
+
 }
 CThreadsField::~CThreadsField()
 {
@@ -93,7 +106,11 @@ void * CThreadsField::pv_RFComSenderHandler(void *threadid)
 {
   while (1)
   {
-    cout << "RFComSender"<< endl;
+    pthread_cond_wait(ts_sendInfoRF, mutex_sendInfoRF);
+    //p_rf->RFComSender();
+    pthread_mutex_lock(mutex_readInfoRF);
+    pthread_cond_signal(ts_readInfoRF);
+    pthread_mutex_unlock(mutex_readInfoRF);
   }
 }
 
@@ -101,7 +118,11 @@ void  * CThreadsField::pv_RFComReceiverHandler(void *threadid)
 {
   while (1)
   {
-    cout << "RFComReceiver"<< endl;
+    pthread_cond_wait(ts_readInfoRF, mutex_readInfoRF);
+    cout << "2"<< endl;
+    pthread_mutex_lock(mutex_sendInfoRF);
+    pthread_cond_signal(ts_sendInfoRF);
+    pthread_mutex_unlock(mutex_sendInfoRF);
   }
 }
 
@@ -109,7 +130,8 @@ void  * CThreadsField::pv_WIFIComReceiverHandler(void *threadid)
 {
   while (1)
   {
-    cout << "WIFIComReceiver"<< endl;
+    pthread_cond_wait(ts_readInfoTcp, mutex_readInfoTcp);
+    cout << "3"<< endl;
   }
 }
 
@@ -117,7 +139,8 @@ void *CThreadsField::pv_WIFIComSenderHandler(void *threadid)
 {
   while (1)
   {
-    cout << "WIFIComSender"<< endl;
+    pthread_cond_wait(ts_sendInfoTcp, mutex_sendInfoTcp);
+    cout << "4"<< endl;
   }
 }
 
@@ -125,6 +148,6 @@ void  CThreadsField::run()
 {
   pthread_detach(t_RFComReceiver);
   pthread_detach(t_RFComSender);
-  pthread_detach(t_WIFIComReceiver);
-  pthread_detach(t_WIFIComSender);
+  //pthread_detach(t_WIFIComReceiver);
+  //pthread_detach(t_WIFIComSender);
 }
