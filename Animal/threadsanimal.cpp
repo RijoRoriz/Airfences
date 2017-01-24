@@ -97,7 +97,7 @@ CThreadsAnimal::CThreadsAnimal()
   p_fieldMap = new CFieldMap();
   p_adc = new CAdc();
 
-  p_animal->setAnimalTimeout(GREENZONE);
+  p_animal->m_setAnimalTimeout(GREENZONE);
 
   /***** THREADS *****/
   pthread_attr_t thread_attr=setAttr(60);
@@ -194,6 +194,11 @@ void CThreadsAnimal::pv_initTimer()
 
 void CThreadsAnimal::pv_handleTimer(int sig, siginfo_t *si, void *uc)
 {
+  timer_t timerid;
+  struct itimerspec its;
+  int timeout = p_animal->mi_getAnimalTimeout();
+  timerid = si->si_timerid;
+
   //cout << "Timeout" << endl;
 
   pthread_mutex_lock(mutex_readBatTemp);
@@ -204,7 +209,13 @@ void CThreadsAnimal::pv_handleTimer(int sig, siginfo_t *si, void *uc)
   pthread_cond_signal(ts_readGPS);
   pthread_mutex_unlock(mutex_readGPS);
 
+  /* Update the timer */
+  its.it_value.tv_sec = timeout;
+  its.it_interval.tv_sec = timeout;
+
   //Update timer values
+  if (timer_settime(timerid, 0, &its, NULL) == -1)
+    errExit("timer_settime");
 }
 
 
@@ -296,9 +307,9 @@ void * CThreadsAnimal::pv_RFComReceiverHandler(void *threadid)
       case 'N':
       case 'C':
       //Config Animal Info
-      p_animal->setAnimalConf(message);
+      p_animal->m_setAnimalConf(message);
       //Config Animal GreenZone
-      p_fieldMap->m_configureMap(p_animal->getAnimalGreenZone());
+      p_fieldMap->m_configureMap(p_animal->mssq_getAnimalGreenZone());
       break;
 
       default:
@@ -320,9 +331,9 @@ void * CThreadsAnimal :: pv_shockHandler(void *threadid)
     pthread_cond_wait(ts_endProcessing, mutex_endProcessing);
 
     //Check which zone is the Animal
-    // pthread_mutex_lock(mutex_animalZone);
-    // iAnimalZone = p_animal->getAnimalZone();
-    // pthread_mutex_unlock(mutex_animalZone);
+    pthread_mutex_lock(mutex_animalZone);
+    iAnimalZone = p_animal->mi_getAnimalZone();
+    pthread_mutex_unlock(mutex_animalZone);
 
     //Turn on the LED zone
     leds.m_turnON_LedZone(iAnimalZone);
@@ -412,10 +423,10 @@ void * CThreadsAnimal :: pv_processinInfoHandler(void *threadid)
     //iAnimalZone = p_fieldMap->mi_checkAnimalZone(lat1, lat2);
 
     //Set the animal zone and the timer of the zone
-    //pthread_mutex_lock(mutex_animalZone);
-    //p_animal->setAnimalZone(iAnimalZone);
-    //pthread_mutex_unlock(mutex_animalZone);
-    //p_animal->setAnimalTimeout(iAnimalZone);
+    pthread_mutex_lock(mutex_animalZone);
+    p_animal->m_setAnimalZone(iAnimalZone);
+    p_animal->m_setAnimalTimeout(iAnimalZone);
+    pthread_mutex_unlock(mutex_animalZone);
 
 
     pthread_mutex_lock(mutex_endProcessing);
@@ -438,7 +449,7 @@ void * CThreadsAnimal :: pv_gpsHandler(void *threadid)
   {
     //previous = millis();
     //Wait for animal.timeout
-    //while((millis() - previous) < p_animal->getAnimalTimeout());
+    //while((millis() - previous) < p_animal->mi_getAnimalTimeout());
     pthread_cond_wait(ts_readGPS, mutex_readGPS);
     cout << "GPS START READING" << endl;
     //Read animal's coordinates

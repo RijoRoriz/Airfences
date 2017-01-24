@@ -8,6 +8,7 @@ CAnimal :: CAnimal()
   mi_Zone = NOZONE;
 
   //Load file with animal confs
+  m_loadAnimalConf();
 }
 
 CAnimal :: ~CAnimal()
@@ -15,7 +16,7 @@ CAnimal :: ~CAnimal()
 
 }
 
-void CAnimal :: setAnimalTimeout(int zone)
+void CAnimal :: m_setAnimalTimeout(int zone)
 {
   switch(zone)
   {
@@ -37,22 +38,22 @@ void CAnimal :: setAnimalTimeout(int zone)
   }
 }
 
-int CAnimal :: getAnimalTimeout()
+int CAnimal :: mi_getAnimalTimeout()
 {
   return mi_timeout;
 }
 
-void CAnimal :: setAnimalZone(int zone)
+void CAnimal :: m_setAnimalZone(int zone)
 {
   mi_Zone = zone;
 }
 
-int CAnimal :: getAnimalZone()
+int CAnimal :: mi_getAnimalZone()
 {
   return mi_Zone;
 }
 
-void CAnimal :: setAnimalConf(unsigned char* message)
+void CAnimal :: m_setAnimalConf(unsigned char* message)
 {
   uint16_t idAnimalFabric, idField, idAnimal;
 
@@ -72,6 +73,7 @@ void CAnimal :: setAnimalConf(unsigned char* message)
     memcpy(&map_greenZone.long1, &message[15], 4);
     memcpy(&map_greenZone.long2, &message[19], 4);
 
+    m_saveAnimalConf();
     break;
 
     //New Config "ID_Field,ID_Animal,C,GreenZone_x1,GreenZone_x2,GreenZone_y1,GreenZone_y2"
@@ -85,62 +87,62 @@ void CAnimal :: setAnimalConf(unsigned char* message)
       memcpy(&map_greenZone.lat2, &message[9], 4);
       memcpy(&map_greenZone.long1, &message[13], 4);
       memcpy(&map_greenZone.long2, &message[17], 4);
+
+      m_saveAnimalConf();
     }
     break;
   }
 }
 
-SSquare CAnimal :: getAnimalGreenZone()
+SSquare CAnimal :: mssq_getAnimalGreenZone()
 {
   return map_greenZone;
 }
 
-void CAnimal :: saveAnimalConf()
+void CAnimal :: m_saveAnimalConf()
 {
-  // ofstream outfile;
-  //
-  // outfile.open(ANIMAL_CONF_FILE, outfile.out); //writing
-  //
-  // if(outfile.is_open() && outfile.good()){ //Save Animal Configurations
-  //
-  // }
-  // else{
-  //   cout << "Error Saving File: " << ANIMAL_CONF_FILE << endl;
-  // }
-  // outfile.close();
+  ofstream outfile;
+
+  outfile.open(ANIMAL_CONF_FILE, outfile.out); //writing
+
+  if(outfile.is_open() && outfile.good()){ //Save Animal Configurations
+    outfile << mui_idField << ';' << mui_idAnimal << ';'
+      << map_greenZone.lat1 << ';' << map_greenZone.lat2 << ';'
+      << map_greenZone.long1 << ';' << map_greenZone.long2;
+  }
+  else{
+    cout << "Error Saving File: " << ANIMAL_CONF_FILE << endl;
+  }
+  outfile.close();
 }
 
-void CAnimal :: loadAnimalConf()
+void CAnimal :: m_loadAnimalConf()
 {
-  // ifstream infile;
-  // char buffer[50];
-  //
-  // infile.open(ANIMAL_CONF_FILE, infile.in); //reading
-  //
-  // if(infile.is_open() && infile.good()){
-  //   while(!infile.eof())
-  //   {
-  //     getline(infile, buffer);
-  //   }
-  //   infile.close();
-  // }
-  // else {
-  //   cout << "Error Loading File: " << ANIMAL_CONF_FILE << endl;
-  // }
+  ifstream infile;
+  string animalConf;
 
+  infile.open(ANIMAL_CONF_FILE, infile.in); //reading
+
+  if(infile.is_open() && infile.good()){
+    while(!infile.eof())
+    {
+      getline(infile, animalConf);
+
+    sscanf(&animalConf[0], "%hu,%hu,%f,%f,%f,%f", &mui_idField, &mui_idAnimal, &map_greenZone.lat1, &map_greenZone.lat2, &map_greenZone.long1, &map_greenZone.long2);
+    }
+    infile.close();
+  }
+  else {
+    cout << "Error Loading File: " << ANIMAL_CONF_FILE << endl;
+  }
 }
 
-bool CAnimal :: saveAnimalInfo()
-{
-
-}
-
-bool CAnimal :: loadAnimalInfo()
-{
-
-}
-
-bool CAnimal :: updateAnimalInfo()
-{
-
-}
+// bool CAnimal :: saveAnimalInfo()
+// {
+//
+// }
+//
+// bool CAnimal :: loadAnimalInfo()
+// {
+//
+// }
