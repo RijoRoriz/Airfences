@@ -2,65 +2,80 @@
 #include <pthread.h>
 #include "defines.h"
 
-CField::CField{
+CField::CField(){
   mL_redList=mL_greenList=mL_yellowList=NULL;
+}
+
+CField::~CField(){
+  while(getAnimal(GREENZONE)!=-1);
+  while(getAnimal(YELLOWZONE)!=-1);
+  while(getAnimal(REDZONE)!=1);
 }
 void CField::setAnimal(int ids, int list)
 {
-  Sanimal* aux1;
+  Sanimal* aux=NULL;
   if(list==GREENZONE)
   {
-    aux1=mL_greenList;
-    if(aux1==NULL)
+    aux=mL_greenList;
+    if(!aux)
     {
-      aux1 = new Sanimal();
+      aux = new Sanimal();
       aux->id= ids;
+      aux->pointer = NULL;
+      mL_greenList=aux;
     }
     else
     {
-      while(aux1->pointer!=NULL)
+      while(aux->pointer)
       {
-        aux1=aux1->pointer;
+        aux=aux->pointer;
       }
-      aux1 = new Sanimal();
-      aux->id= ids;
+      aux->pointer = new Sanimal();
+      aux->pointer->id= ids;
+      aux->pointer->pointer = NULL;
     }
 
   }
   else if(list==YELLOWZONE)
   {
-    aux1=mL_yellowList;
-    if(aux1==NULL)
+    aux=mL_yellowList;
+    if(!aux)
     {
-      aux1 = new Sanimal();
+      aux = new Sanimal();
       aux->id= ids;
+      aux->pointer = NULL;
+      mL_yellowList=aux;
     }
     else
     {
-      while(aux1->pointer!=NULL)
+      while(aux->pointer)
       {
-        aux1=aux1->pointer;
+        aux=aux->pointer;
       }
-      aux1 = new Sanimal();
-      aux->id= ids;
+      aux->pointer = new Sanimal();
+      aux->pointer->id= ids;
+      aux->pointer->pointer = NULL;
     }
   }
   else if(list==REDZONE)
   {
-    aux1=mL_redList;
-    if(aux1==NULL)
+    aux=mL_redList;
+    if(!aux)
     {
-      aux1 = new Sanimal();
+      aux = new Sanimal();
       aux->id= ids;
+      aux->pointer = NULL;
+      mL_redList=aux;
     }
     else
     {
-      while(aux1->pointer!=NULL)
+      while(aux->pointer)
       {
-        aux1=aux1->pointer;
+        aux=aux->pointer;
       }
-      aux1 = new Sanimal();
-      aux->id= ids;
+      aux->pointer = new Sanimal();
+      aux->pointer->id= ids;
+      aux->pointer->pointer = NULL;
     }
   }
 }
@@ -118,5 +133,4 @@ int CField::getAnimal(int list)
       return returnid;
     }
   }
-
 }
