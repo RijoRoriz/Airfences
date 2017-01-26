@@ -1,10 +1,10 @@
 #include "NRF905.h"
 
- 
+
 CRFCom::CRFCom(){
-	
+
 	wiringPiSetup();
-	
+
 	/***** RFConfiguration *****/
 	unsigned char RFConf[11]=
 	{
@@ -16,7 +16,7 @@ CRFCom::CRFCom(){
       0xCC,0xCC,0xCC,0xCC,    //receiving address
       0x58,                   //CRC enable,8bit CRC,external clock disable,16MHZ Oscillator
 	};
-   
+
 	//Init nRF905
 	pinMode(CSN, OUTPUT);
 	pinMode(DR, INPUT);	// Init DR for input
@@ -28,14 +28,14 @@ CRFCom::CRFCom(){
 	digitalWrite(CE, LOW);// Set nRF905 in standby mode
 	pinMode(TX_EN, OUTPUT);
 	digitalWrite(TX_EN, LOW);// set radio in Rx mode
-	
+
 	if(wiringPiSPISetup(0, 16000000) == -1){
 	  printf("Could not initialise SPI\n");
 	}
 	else{
 		/***** send write configuration command ******/
 		wiringPiSPIDataRW(0, RFConf, 11);
-		
+
 	}
 	m_cState = 0;
 	m_AddT[0]=0xCC;
@@ -66,16 +66,16 @@ void CRFCom::RFComSetAddR(unsigned char *RxAddress)
       0xCC,0xCC,0xCC,0xCC,    //receiving address
       0x58,                   //CRC enable,8bit CRC,external clock disable,16MHZ 									Oscillator
 	};
-	
+
 	RFConf[6]=RxAddress[0];
 	RFConf[7]=RxAddress[1];
 	RFConf[8]=RxAddress[2];
 	RFConf[9]=RxAddress[3];				// Spi enable for write a spi command
-	
+
 	/***** send write configuration command ******/
 	wiringPiSPIDataRW(0, RFConf, 11);
 	digitalWrite(CE,HIGH);
-	
+
 }
 
 void CRFCom::RFComSetAddT(unsigned char *TxAddress)
@@ -84,7 +84,7 @@ void CRFCom::RFComSetAddT(unsigned char *TxAddress)
 	m_AddT[1]=TxAddress[1];
 	m_AddT[2]=TxAddress[2];
 	m_AddT[3]=TxAddress[3];
-	
+
 	unsigned char command[5];
 	command[0]= NRF905_WRITE_TX_ADDR;
 	command[1]= TxAddress[0];
@@ -125,17 +125,17 @@ int CRFCom::i_SetRx()
 
 void CRFCom::RFComSender(unsigned char *TxAddress, unsigned char *Payload)
 {
-		
+
 		unsigned int sender;
 		unsigned char msgcontentGPS[MQGPSLEN];
-		
+
 		/***** prepare data to send *****/
 		i_SetTx(); //Set transmit mod
 		if(TxAddress!=NULL)
 		{
-			this->RFComSetAddT(TxAddress); 
+			this->RFComSetAddT(TxAddress);
 			printf("TxAdd not null");
-		} 
+		}
 		if(Payload!=NULL)
 		{
 		 this->RFComSetPayload(Payload);
@@ -150,32 +150,32 @@ void CRFCom::RFComSender(unsigned char *TxAddress, unsigned char *Payload)
 		digitalWrite(CE,0);
 		//i_SetRx();
 }
-	
+
 void CRFCom::RFComReceiver(unsigned char * returned)
 {
 		i_SetRx();
 		while(digitalRead(DR)==0);
-   	returned[0]= NRF905_READ_RX_PAYLOAD;		
-		wiringPiSPIDataRW(0, returned, 33);	
+   	returned[0]= NRF905_READ_RX_PAYLOAD;
+		wiringPiSPIDataRW(0, returned, 33);
 }
 
 void CRFCom::RFComPrintConf()
 {
 	unsigned char configurationread [11];
    configurationread[0]=NRF905_READ_CONF;
-	wiringPiSPIDataRW(0, configurationread, 11);	
+	wiringPiSPIDataRW(0, configurationread, 11);
 	for(int i=1;i<11;i++)
 	{
 		printf("Conf[%d]:%x ", i,configurationread[i]);
 	}
-	printf("\n");	
+	printf("\n");
 }
 
 void CRFCom::RFComPrintTAddr()
 {
 	unsigned char configurationread [5];
    configurationread[0]=NRF905_READ_TX_ADDR;
-	wiringPiSPIDataRW(0, configurationread, 5);	
+	wiringPiSPIDataRW(0, configurationread, 5);
 	for(int i=1;i<5;i++)
 	{
 		printf("Addr:%x ", configurationread[i]);
@@ -187,8 +187,8 @@ void CRFCom::RFComPrintTAddr()
 void CRFCom::RFComPrintTPaylo()
 {
 	unsigned char configurationread [33];
-   configurationread[0]=NRF905_READ_TX_PAYLO;		
-	wiringPiSPIDataRW(0, configurationread, 33);	
+   configurationread[0]=NRF905_READ_TX_PAYLO;
+	wiringPiSPIDataRW(0, configurationread, 33);
 	printf("TPayload:");
 	for(int i=1;i<33;i++)
 	{
@@ -200,14 +200,14 @@ void CRFCom::RFComPrintTPaylo()
 void CRFCom::RFComPrintRPaylo()
 {
 	unsigned char configurationread [33];
-   configurationread[0]= NRF905_READ_RX_PAYLOAD;		
-	wiringPiSPIDataRW(0, configurationread, 33);	
+   configurationread[0]= NRF905_READ_RX_PAYLOAD;
+	wiringPiSPIDataRW(0, configurationread, 33);
 	printf("RPayload:");
 	for(int i=1;i<33;i++)
 	{
 		printf("%x ", configurationread[i]);
 	}
-	
+
 	printf("\n");
 }
 
@@ -221,4 +221,3 @@ void CRFCom::RFComSetPayload(unsigned char *Payload)
 	}
 	wiringPiSPIDataRW(0, payload, NRF905_PAYLOAD_SIZE+1);
 }
-

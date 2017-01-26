@@ -24,6 +24,7 @@
 #define MQRFCOMLEN     32
 
 
+
 #define OUTZONE     4
 #define REDZONE     3
 #define YELLOWZONE  2
@@ -33,10 +34,10 @@
 /*******************************************************************************
                             RF - NRF905
 *******************************************************************************/
-#define FIELDADDR0 0x00
-#define FIELDADDR1 0x00
+#define FIELDADDR0 0xFF
+#define FIELDADDR1 0xFF
 #define FIELDADDR2 0x00
-#define FIELDADDR3 0x00
+#define FIELDADDR3 0x01
 
 // Registers
 #define NRF905_WRITE_CONF		     0x00
