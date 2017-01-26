@@ -3,9 +3,11 @@
 
 #include <stdio.h>
 #include <stdint.h>
+#include <string.h>
 #include <errno.h>
 #include <sys/time.h>
 #include <signal.h>
+#include <iomanip>
 #include <iostream>
 #include <fstream>
 

@@ -78,7 +78,7 @@ int16_t CAdc :: readADC_SingleEnded(int8_t channel)
 
 
   // Wait for the conversion to complete
-  delay(3);
+  delay(5);
 
   // Read the conversion results
   read = wiringPiI2CReadReg16 (mui_adcHandler, ADS1015_REG_POINTER_CONVERT);
@@ -109,19 +109,20 @@ void CAdc :: readTemperature()
 
 	mf_tmp36voltage = read * mcf_vps4;
 
-	if(mf_tmp36voltage < MIN_TMP36_OUTPUT || mf_tmp36voltage > MAX_TMP36_OUTPUT)
-	{
-		readTemperature();
-	}
-	else
-	{
+	// if(mf_tmp36voltage < MIN_TMP36_OUTPUT || mf_tmp36voltage > MAX_TMP36_OUTPUT)
+	// {
+	// 	cout << "Reading again temperature..." << endl;
+	// 	//readTemperature();
+	// }
+	// else
+	// {
 		//Temp °C = 100*(reading in V) - 50
 		mf_temperature = 100 * mf_tmp36voltage - 50;
 
-		cout << fixed;
-		cout << "Voltage:     " << setprecision(3) << mf_tmp36voltage << endl;
-		cout << "Temperature: " << setprecision(3) << mf_temperature  << endl;
-	}
+		// cout << fixed;
+		cout << "Voltage TMP36:     " << setprecision(3) << mf_tmp36voltage << endl;
+		// cout << "Temperature: " << setprecision(3) << mf_temperature  << endl;
+	// }
 }
 
 float CAdc :: getTemperature()
@@ -142,7 +143,7 @@ void CAdc :: readBatteryLevel()
 
 	mf_batteryLevel = read * mcf_vps4;
 	cout << fixed;
-	cout << "Voltage: " << setprecision(3) << mf_batteryLevel << endl;
+	//cout << "Voltage: " << setprecision(3) << mf_batteryLevel << endl;
 }
 
 float CAdc :: getBatteryLevel()

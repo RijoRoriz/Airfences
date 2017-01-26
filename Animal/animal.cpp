@@ -1,5 +1,11 @@
 #include "animal.h"
 
+extern pthread_mutex_t *mutex_readGPS;
+extern pthread_mutex_t *mutex_readBatTemp;
+
+extern pthread_cond_t *ts_readGPS;
+extern pthread_cond_t *ts_readBatTemp;
+
 CAnimal :: CAnimal()
 {
   mui_idAnimal = 0;
@@ -59,7 +65,7 @@ void CAnimal :: m_setAnimalConf(unsigned char* message)
 
   switch (message[4])
   {
-    //First Config "ID_Field,ID_Animal,N,ID_Animal,GreenZone_x1,GreenZone_x2,GreenZone_y1,GreenZone_y2"
+    //First Config "ID_Field,ID_Animal,N,ID_Animal,FenceLimit_x1,FenceLimit_x2,FenceLimit_y1,FenceLimit_y2"
     case 'N':
     memcpy(&mui_idField, &message[0], 2); //Set FieldID
     memcpy(&idAnimalFabric, &message[2], 2);
@@ -68,25 +74,25 @@ void CAnimal :: m_setAnimalConf(unsigned char* message)
       memcpy(&mui_idAnimal, &message[5], 2); //Set AnimalID
     }
     //Set the greenZone
-    memcpy(&map_greenZone.lat1, &message[7], 4);
-    memcpy(&map_greenZone.lat2, &message[11], 4);
-    memcpy(&map_greenZone.long1, &message[15], 4);
-    memcpy(&map_greenZone.long2, &message[19], 4);
+    memcpy(&m_fenceLimits.lat1, &message[7], 4);
+    memcpy(&m_fenceLimits.lat2, &message[11], 4);
+    memcpy(&m_fenceLimits.long1, &message[15], 4);
+    memcpy(&m_fenceLimits.long2, &message[19], 4);
 
     m_saveAnimalConf();
     break;
 
-    //New Config "ID_Field,ID_Animal,C,GreenZone_x1,GreenZone_x2,GreenZone_y1,GreenZone_y2"
+    //New Config "ID_Field,ID_Animal,C,FenceLimit_x1,FenceLimit_x2,FenceLimit_y1,FenceLimit_y2"
     case 'C':
     memcpy(&idField, &message[0], 2);
     memcpy(&idAnimal, &message[2], 2);
 
     if((idField == mui_idField) && (idAnimal == mui_idAnimal)) {
       //Set the greenZone
-      memcpy(&map_greenZone.lat1, &message[5], 4);
-      memcpy(&map_greenZone.lat2, &message[9], 4);
-      memcpy(&map_greenZone.long1, &message[13], 4);
-      memcpy(&map_greenZone.long2, &message[17], 4);
+      memcpy(&m_fenceLimits.lat1, &message[5], 4);
+      memcpy(&m_fenceLimits.lat2, &message[9], 4);
+      memcpy(&m_fenceLimits.long1, &message[13], 4);
+      memcpy(&m_fenceLimits.long2, &message[17], 4);
 
       m_saveAnimalConf();
     }
@@ -94,9 +100,9 @@ void CAnimal :: m_setAnimalConf(unsigned char* message)
   }
 }
 
-SSquare CAnimal :: mssq_getAnimalGreenZone()
+SSquare CAnimal :: mssq_getAnimalFenceLimits()
 {
-  return map_greenZone;
+  return m_fenceLimits;
 }
 
 void CAnimal :: m_saveAnimalConf()
@@ -107,8 +113,8 @@ void CAnimal :: m_saveAnimalConf()
 
   if(outfile.is_open() && outfile.good()){ //Save Animal Configurations
     outfile << mui_idField << ';' << mui_idAnimal << ';'
-      << map_greenZone.lat1 << ';' << map_greenZone.lat2 << ';'
-      << map_greenZone.long1 << ';' << map_greenZone.long2;
+      << m_fenceLimits.lat1 << ';' << m_fenceLimits.lat2 << ';'
+      << m_fenceLimits.long1 << ';' << m_fenceLimits.long2;
   }
   else{
     perror("CAnimal::m_saveAnimalConf In infile.open()");
@@ -128,7 +134,7 @@ void CAnimal :: m_loadAnimalConf()
     {
       getline(infile, animalConf);
 
-    sscanf(&animalConf[0], "%hu;%hu;%f;%f;%f;%f", &mui_idField, &mui_idAnimal, &map_greenZone.lat1, &map_greenZone.lat2, &map_greenZone.long1, &map_greenZone.long2);
+    sscanf(&animalConf[0], "%hu;%hu;%f;%f;%f;%f", &mui_idField, &mui_idAnimal, &m_fenceLimits.lat1, &m_fenceLimits.lat2, &m_fenceLimits.long1, &m_fenceLimits.long2);
     }
     infile.close();
 
@@ -136,10 +142,10 @@ void CAnimal :: m_loadAnimalConf()
     cout << setprecision(6) << fixed
     << "ID Field: " << mui_idField << endl
     << "ID Animal: " << mui_idAnimal << endl
-    << "Lat1: " << map_greenZone.lat1 << endl
-    << "Long1: " << map_greenZone.long1 << endl
-    << "Lat2: " << map_greenZone.lat2 << endl
-    << "Long2: " << map_greenZone.long2 << endl;
+    << "Lat1: " << m_fenceLimits.lat1 << endl
+    << "Long1: " << m_fenceLimits.long1 << endl
+    << "Lat2: " << m_fenceLimits.lat2 << endl
+    << "Long2: " << m_fenceLimits.long2 << endl;
     #endif
   }
   else {

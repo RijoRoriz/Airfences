@@ -3,8 +3,7 @@
 
 #include <stdlib.h>
 #include <errno.h>
-#include <string.h>
-#include <iomanip>
+
 
 #include "defines.h"
 

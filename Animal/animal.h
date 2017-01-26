@@ -2,6 +2,8 @@
 #define ANIMAL_H_
 
 #include "threadsanimal.h"
+#include <signal.h>
+#include <time.h>
 
 #define ANIMAL_CONF_FILE "/root/AnimalConf.csv"
 
@@ -19,12 +21,11 @@ class CAnimal
 		uint16_t mui_idAnimal;
 		uint16_t mui_idField;
 
-		SSquare map_greenZone;
+		SSquare m_fenceLimits;
 
 		int mi_timeout;
 		//float mi_Temp;
 		//float mf_Bat;
-
 
 	public:
 		CAnimal();
@@ -37,7 +38,7 @@ class CAnimal
 		int mi_getAnimalZone();
 
 		void m_setAnimalConf(unsigned char* message);
-		SSquare mssq_getAnimalGreenZone();
+		SSquare mssq_getAnimalFenceLimits();
 		void m_saveAnimalConf(); //Save Animal configuations  (ID, FieldID, field coordinates)
 		void m_loadAnimalConf();
 

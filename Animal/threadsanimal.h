@@ -13,9 +13,6 @@
 #include "leds.h"
 #include "NRF905.h"
 
-#define errExit(msg)    do { perror(msg); exit(EXIT_FAILURE); \
-                               } while (0)
-
 using namespace std;
 
 class CThreadsAnimal
@@ -36,8 +33,12 @@ private:
 	pthread_t t_RFComReceiver;
 
 	pthread_attr_t setAttr(int prio);
+
+  
+
 	void pv_initTimer();
-	static void pv_handleTimer(int sig, siginfo_t *si, void *uc);
+  void pv_updateTimer();
+	static void pv_TimerHandler(int sig, siginfo_t *si, void *uc);
 
 	/***** PTHREADS BEHAVIOUR *****/
 	static void * pv_RFComSenderHandler(void *threadid);
