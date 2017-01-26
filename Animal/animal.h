@@ -3,21 +3,13 @@
 
 #include "threadsanimal.h"
 
-#define ANIMAL_CONF_FILE "/root/AnimalConf.txt"
+#define ANIMAL_CONF_FILE "/root/AnimalConf.csv"
 
 #define TIME_GREEN_ZONE   30
 #define TIME_YELLOW_ZONE  20
 #define TIME_RED_ZONE     10
 
 using namespace std;
-
-struct SSquare
-{
-	float lat1;  // first x coordinate
-	float long1; // first y coordinate
-	float lat2;  // second x coordinate
-	float long2; // second y coordinate
-};
 
 class CAnimal
 {

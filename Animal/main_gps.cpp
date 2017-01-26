@@ -1,19 +1,28 @@
 #include "defines.h"
-#include "threadsanimal.h"
+//#include "threadsanimal.h"
+#include "gps.h"
 
 using namespace std;
 
 int main()
 {
-  CThreadsAnimal animal;
+  CGps gps;
 
-  animal.run();
-  //
-  // animal = new CThreadsAnimal();
-  //
-  // animal->run();
+  gps.initGps();
 
-  pthread_exit(0);
+  while (1) {
+    gps.readGps();
+    delay(1000);
+  }
+//   CThreadsAnimal animal;
+//
+//   animal.run();
+//   //
+//   // animal = new CThreadsAnimal();
+//   //
+//   // animal->run();
+//
+//   pthread_exit(0);
 
   return 0;
 }

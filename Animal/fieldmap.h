@@ -3,33 +3,25 @@
 
 #include "defines.h"
 
-#define DIST_TO_YELLOW_ZONE   20
-#define DIST_TO_RED_ZONE      10
+#define DEG_YELLOW_ZONE    1/16
+#define DEG_GREEN_ZONE     3/16
 
 using namespace std;
-
-struct SSquare
-{
-	float lat1;
-	float long1;
-	float lat2;
-	float long2;
-};
 
 class CFieldMap
 {
 private:
-	struct SSquare m_greenzone;
-	struct SSquare m_yellowzone;
-	struct SSquare m_redzone;
-	struct SSquare m_outzone;
+	SSquare m_greenzone;
+	SSquare m_yellowzone;
+	SSquare m_redzone;
 
 public:
 	CFieldMap();
 	~CFieldMap();
 
-	void m_configureMap(struct SSquare greenZone);
+	void m_configureMap(SSquare fenceLimits);
 	int mi_checkAnimalZone(float latitude, float longitude);
+	void m_printFieldZones();
 
 };
 

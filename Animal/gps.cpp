@@ -73,8 +73,14 @@ void CGps :: initGps()
      }
 
      mb_gpsPower = true;
+
+     cout << "GPS READY" << endl;
 }
 
+bool CGps :: mb_gpsReady()
+{
+  return mb_gpsPower;
+}
 
 unsigned int CGps :: sendATCommand(const char *AT, const char *expected_answer, unsigned int timeout)
 {
@@ -186,15 +192,15 @@ void CGps :: readGps()
 
     mb_gpsData = true;
 
-    cout << setprecision(6) << fixed;
+    // cout << setprecision(6) << fixed;
     cout << "LATITUDE:  " << mf_latitude << endl;
     cout << "LONGITUDE: " << mf_longitude << endl;
   }
   else //Data not valid - Read again
   {
     mb_gpsData = false;
-    readGps();
-    cout << "Read again..." << endl;
+  //   readGps();
+     cout << "Read again..." << endl;
   }
 }
 

@@ -1,10 +1,7 @@
 #ifndef LEDS_H__
 #define LEDS_H__
 
-#include <iostream>
-#include <stdio.h>
-#include <stdlib.h>
-#include <wiringPi.h>
+#include "defines.h"
 
 
 //      Label     wiringPi Pin

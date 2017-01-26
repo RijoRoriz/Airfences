@@ -3,26 +3,41 @@
 
 #include <stdio.h>
 #include <stdint.h>
+#include <errno.h>
 #include <sys/time.h>
 #include <signal.h>
 #include <iostream>
-#include <fstream>  
+#include <fstream>
 
 #include <wiringPi.h>
 #include <wiringPiSPI.h>
 #include <wiringPiI2C.h>
+#include <wiringSerial.h>
 
 #include <mqueue.h>
 #include <pthread.h>
 
+struct SSquare
+{
+	float lat1;
+	float long1;
+	float lat2;
+	float long2;
+};
+
+#ifndef DEBUG
+#define DEBUG 1
+#endif
+
 #define MQBATTEMP      "/mq_batTemp"
 #define MQBATTEMPLEN   6
 #define MQGPS          "/mq_gps"
-#define MQGPSLEN       24
+#define MQGPSLEN       30
 #define MQWIFI         "/mq_wifi"
 #define MQWIFILEN      200
 #define MQRFCOM        "/mq_rf"
 #define MQRFCOMLEN     32
+#define MAX_MSG_LEN    10000
 
 #define MIN_BATTERY_LEVEL 1.5
 

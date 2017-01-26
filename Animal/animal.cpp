@@ -111,7 +111,7 @@ void CAnimal :: m_saveAnimalConf()
       << map_greenZone.long1 << ';' << map_greenZone.long2;
   }
   else{
-    cout << "Error Saving File: " << ANIMAL_CONF_FILE << endl;
+    perror("CAnimal::m_saveAnimalConf In infile.open()");
   }
   outfile.close();
 }
@@ -128,12 +128,22 @@ void CAnimal :: m_loadAnimalConf()
     {
       getline(infile, animalConf);
 
-    sscanf(&animalConf[0], "%hu,%hu,%f,%f,%f,%f", &mui_idField, &mui_idAnimal, &map_greenZone.lat1, &map_greenZone.lat2, &map_greenZone.long1, &map_greenZone.long2);
+    sscanf(&animalConf[0], "%hu;%hu;%f;%f;%f;%f", &mui_idField, &mui_idAnimal, &map_greenZone.lat1, &map_greenZone.lat2, &map_greenZone.long1, &map_greenZone.long2);
     }
     infile.close();
+
+    #if DEBUG
+    cout << setprecision(6) << fixed
+    << "ID Field: " << mui_idField << endl
+    << "ID Animal: " << mui_idAnimal << endl
+    << "Lat1: " << map_greenZone.lat1 << endl
+    << "Long1: " << map_greenZone.long1 << endl
+    << "Lat2: " << map_greenZone.lat2 << endl
+    << "Long2: " << map_greenZone.long2 << endl;
+    #endif
   }
   else {
-    cout << "Error Loading File: " << ANIMAL_CONF_FILE << endl;
+    perror("CAnimal::m_loadAnimalConf In infile.open()");
   }
 }
 
