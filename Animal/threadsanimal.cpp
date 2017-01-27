@@ -308,21 +308,25 @@ void * CThreadsAnimal::pv_RFComSenderHandler(void *threadid)
     // }
     //
     //Send requested information
-    // p_rf->RFComSender(NULL, requestedInfo);
-    // pthread_mutex_lock(mutex_readInfo);
-    // pthread_cond_signal(ts_readInfo);
-    // pthread_mutex_unlock(mutex_readInfo);
+    p_rf->RFComSender(NULL, requestedInfo);
+    pthread_mutex_lock(mutex_readInfo);
+    pthread_cond_signal(ts_readInfo);
+    pthread_mutex_unlock(mutex_readInfo);
   }
 }
 
 void * CThreadsAnimal::pv_RFComReceiverHandler(void *threadid)
 {
   unsigned char message[33];
+  char msg2queue[33];
+  unsigned int msgqRF_prio = 1;
   cout << "thread pv_RFComReceiverHandler" << endl;
 
   while(1)
   {
     pthread_cond_wait(ts_readInfo, mutex_readInfo);
+    memset(message, '\0', 33);
+    memset(msg2queue, '\0', 33);
 
     cout << "Waiting message" << endl;
     p_rf->RFComReceiver(message);  //Wait for a message
@@ -330,7 +334,7 @@ void * CThreadsAnimal::pv_RFComReceiverHandler(void *threadid)
     cout << "MESSAGE RECEIVEID: ";
     for(int i=0; i<33; i++)
     {
-      printf("%x", message[i] );
+      printf("%X", message[i] );
     }
     cout << endl;
 
@@ -338,6 +342,7 @@ void * CThreadsAnimal::pv_RFComReceiverHandler(void *threadid)
     switch (message[4]) { //Command Type
       //Reset Command "ID_Field,ID_Animal,R,Temperature,Battery,GPS,RF,State"
       case 'R':
+      cout << "RESET COMMAND" << endl;
       if(message[5] == 1) { //Reset Temperature
 
       }
@@ -354,18 +359,14 @@ void * CThreadsAnimal::pv_RFComReceiverHandler(void *threadid)
 
       //Request Information "ID_Field,ID_Animal,I,Temperature,Battery,GPS,RF,State"
       case 'I':
-      //Send message to mq_rf?
-      cout << "Signal ts_sendInfo" << endl;
-
-      pthread_mutex_lock(mutex_sendInfo);
-      //Trigger ts_sendInfo
-      pthread_cond_signal(ts_sendInfo);
-      pthread_mutex_unlock(mutex_sendInfo);
+      cout << "REQUEST COMMAND" << endl;
       break;
 
       //First Config or New Conf
       case 'N':
+      cout << "FIRST CONF COMMAND" << endl;
       case 'C':
+      cout << "NEW CONF COMMAND" << endl;
       //Config Animal Info
       p_animal->m_setAnimalConf(message);
       //Config Animal GreenZone
@@ -375,6 +376,32 @@ void * CThreadsAnimal::pv_RFComReceiverHandler(void *threadid)
       default:
       break;
     }
+
+    for(int i=0; i<33; i++)
+    {
+      msg2queue[i]=static_cast<char>(message[i]);
+    }
+
+    // mq_close(mq_rf);
+    mq_rf = mq_open(MQRFCOM, O_RDWR); //Send coordinates
+    if (mq_rf == (mqd_t)-1) {
+      perror("CThreadsAnimal::pv_RFComReceiverHandler In mq_open()");
+      //exit(1);
+    }
+    mq_rf = mq_send(mq_rf, msg2queue, strlen(msg2queue)+1, msgqRF_prio);
+    if (mq_rf == (mqd_t)-1) {
+      perror("CThreadsAnimal::pv_RFComReceiverHandler In mq_send()");
+      //exit(1);
+    }
+    mq_close(mq_rf);
+
+
+    cout << "Signal ts_sendInfo" << endl;
+
+    pthread_mutex_lock(mutex_sendInfo);
+    //Trigger ts_sendInfo
+    pthread_cond_signal(ts_sendInfo);
+    pthread_mutex_unlock(mutex_sendInfo);
 
   }
 }

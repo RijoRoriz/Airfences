@@ -172,6 +172,10 @@ void CRFCom::RFComReceiver(unsigned char * returned)
 		//digitalWrite(CE, HIGH); //RX remains ON
 		digitalWrite(CE, LOW); //Radio enters in standby
 		delay(1);
+
+		for(int i=0; i < 32; i++) {
+			returned[i] = returned[i+1];
+		}
 }
 
 void CRFCom::RFComPrintConf()
