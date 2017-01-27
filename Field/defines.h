@@ -5,6 +5,7 @@
 #include <stdint.h>
 #include <sys/time.h>
 #include <iostream>
+#include <string.h>
 
 #include <wiringPi.h>
 #include <wiringPiSPI.h>
@@ -12,6 +13,7 @@
 
 #include <mqueue.h>
 #include <pthread.h>
+#include <semaphore.h>
 
 
 #define MQSENSORS      "/mq_sensors"

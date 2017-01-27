@@ -1,9 +1,8 @@
 #include "field.h"
-#include <pthread.h>
-#include "defines.h"
 
 CField::CField(){
   mL_redList=mL_greenList=mL_yellowList=NULL;
+  mL_wifiInfoList=NULL;
 }
 
 CField::~CField(){
@@ -11,7 +10,7 @@ CField::~CField(){
   while(getAnimal(YELLOWZONE)!=-1);
   while(getAnimal(REDZONE)!=1);
 }
-void CField::setAnimal(int ids, int list)
+void CField::setAnimal(uint16_t ids, int list)
 {
   Sanimal* aux=NULL;
   if(list==GREENZONE)
@@ -82,7 +81,6 @@ void CField::setAnimal(int ids, int list)
 int CField::getAnimal(int list)
 {
   Sanimal * aux;
-  Sanimal * aux2;
   int returnid=-1;
   if(list==GREENZONE)
   {
@@ -94,9 +92,8 @@ int CField::getAnimal(int list)
     }
     else
     {
-      aux2=aux->pointer;
+      mL_greenList=aux->pointer;
       returnid=aux->id;
-      mL_greenList=aux2;
       delete aux;
       return returnid;
     }
@@ -111,8 +108,8 @@ int CField::getAnimal(int list)
     }
     else
     {
-      aux2=aux->pointer;
-      mL_yellowList=aux2;
+      mL_yellowList=aux->pointer;
+      returnid=aux->id;
       delete aux;
       return returnid;
     }
@@ -127,10 +124,50 @@ int CField::getAnimal(int list)
     }
     else
     {
-      aux2=aux->pointer;
-      mL_redList=aux2;
+      mL_redList=aux->pointer;
+      returnid=aux->id;
       delete aux;
       return returnid;
     }
+  }
+}
+
+void CField::setAnimalInfo(char* returnedMsg)
+{
+  SanimalInfo* aux=NULL;
+  aux=mL_wifiInfoList;
+  if(!aux)
+  {
+    aux = new SanimalInfo();
+    memcpy(aux->msg,returnedMsg,32);
+    aux->pointer = NULL;
+    mL_wifiInfoList=aux;
+  }
+  else
+  {
+    while(aux->pointer)
+    {
+      aux=aux->pointer;
+    }
+    aux->pointer = new SanimalInfo();
+    memcpy(aux->msg,returnedMsg,32);
+    aux->pointer->pointer = NULL;
+  }
+}
+
+void CField::getAnimalInfo(char * msg)
+{
+  SanimalInfo * aux;
+  aux=mL_wifiInfoList;
+  if(aux==NULL)
+  {
+    cout << "wifi list empty" << endl;
+    msg=NULL;
+  }
+  else
+  {
+    mL_wifiInfoList=aux->pointer;
+    memcpy(msg,aux->msg,32);
+    delete aux;
   }
 }
