@@ -28,17 +28,18 @@ struct SSquare
 };
 
 #ifndef DEBUG
-#define DEBUG 1
+#define DEBUG 0
 #endif
 
 #define MQBATTEMP      "/mq_batTemp"
-#define MQBATTEMPLEN   6
+#define MQBATTEMPLEN   10
 #define MQGPS          "/mq_gps"
 #define MQGPSLEN       30
 #define MQWIFI         "/mq_wifi"
 #define MQWIFILEN      200
 #define MQRFCOM        "/mq_rf"
-#define MQRFCOMLEN     32
+#define MQRFCOMLEN     33
+#define MQRFSENDER     "/mq_rfSender"
 #define MAX_MSG_LEN    10000
 
 #define MIN_BATTERY_LEVEL 1.5

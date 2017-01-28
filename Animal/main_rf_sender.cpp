@@ -6,6 +6,8 @@ using namespace std;
 int main( int argc, char * argv [] )
 {
 	unsigned char message[33];
+	unsigned char addrT[4] = {0xAA, 0xAA, 0x00, 0x01};
+	unsigned char addrR[4] = {0xFF, 0xFF, 0x00, 0x01};
 	uint16_t idAnimal = 3;
 	uint16_t idField = 1;
 	float lat1 = 41.501333;
@@ -19,6 +21,8 @@ int main( int argc, char * argv [] )
 	// cout << "ARGV: " << argv[1] << endl;
 
 	p_rf = new CRFCom();
+	p_rf->RFComSetAddR(addrR);
+	// p_rf->RFComSetAddT(addrT);
 
 	if(argc == 2) {
 		char *command = argv[1];
@@ -78,7 +82,7 @@ int main( int argc, char * argv [] )
 			break;
 		}
 
-		p_rf->RFComSender(NULL, message);
+		p_rf->RFComSender(addrT, message);
 
 		cout << "Message: ";
 

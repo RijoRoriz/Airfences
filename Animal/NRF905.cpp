@@ -13,7 +13,7 @@ CRFCom::CRFCom(){
 		0x0C,                   //output power 10db, resend disable, Current Normal operation
 		0x44,                   //4-byte address
 		0x20,0x20,              //receive or send data length 32 bytes
-		0xCC,0xCC,0xCC,0xCC,    //receiving address
+		0xAA,0xAA,0x00,0x01,    //receiving address
 		0x58,                   //CRC enable,8bit CRC,external clock disable,16MHZ Oscillator
 	};
 
@@ -42,10 +42,10 @@ CRFCom::CRFCom(){
 
 	m_cState = 0;
 
-	m_AddT[0]=0xCC;
-	m_AddT[1]=0xCC;
-	m_AddT[2]=0xCC;
-	m_AddT[3]=0xCC;
+	m_AddT[0]=0xFF;
+	m_AddT[1]=0xFF;
+	m_AddT[2]=0x00;
+	m_AddT[3]=0x01;
 
 	unsigned char command[5];
 	command[0]= NRF905_WRITE_TX_ADDR;
@@ -140,7 +140,7 @@ void CRFCom::RFComSender(unsigned char *TxAddress, unsigned char *Payload)
 		if(TxAddress!=NULL)
 		{
 			this->RFComSetAddT(TxAddress);
-			printf("TxAdd not null");
+			// printf("TxAdd not null");
 		}
 		if(Payload!=NULL)
 		{
