@@ -13,8 +13,8 @@ pthread_mutex_t *mutex_animalZone;
 
 
 /***** SIGNALS *****/
-pthread_cond_t *ts_sendInfo;
-pthread_cond_t *ts_readInfo;
+pthread_cond_t *ts_sendInfoRF;
+pthread_cond_t *ts_readInfoRF;
 
 pthread_cond_t *ts_endProcessing;
 pthread_cond_t *ts_GPSReady;
@@ -59,10 +59,10 @@ CThreadsAnimal::CThreadsAnimal()
   /***********************************************************************/
 
   /***** SIGNALS *****/
-  ts_sendInfo = new pthread_cond_t();
-  int ts_sendInfo_status=pthread_cond_init(ts_sendInfo, NULL);
-  ts_readInfo = new pthread_cond_t();
-  int ts_readInfo_status=pthread_cond_init(ts_readInfo, NULL);
+  ts_sendInfoRF = new pthread_cond_t();
+  int ts_sendInfoRF_status=pthread_cond_init(ts_sendInfoRF, NULL);
+  ts_readInfoRF = new pthread_cond_t();
+  int ts_readInfoRF_status=pthread_cond_init(ts_readInfoRF, NULL);
   ts_endProcessing = new pthread_cond_t();
   int ts_endProcessing_status=pthread_cond_init(ts_endProcessing, NULL);
   ts_GPSReady = new pthread_cond_t();
@@ -180,7 +180,7 @@ void CThreadsAnimal::run()
   pthread_detach(t_RFComSender);
 
   pthread_mutex_lock(mutex_readInfo);
-  pthread_cond_signal(ts_readInfo);
+  pthread_cond_signal(ts_readInfoRF);
   pthread_mutex_unlock(mutex_readInfo);
 }
 
@@ -272,9 +272,9 @@ void * CThreadsAnimal::pv_RFComSenderHandler(void *threadid)
     memset(cCommand, '\0', MAX_MSG_LEN);
     memset(requestedInfo, '\0', 33);
     memset(cAnimalInfo, '\0', MAX_MSG_LEN);
-    //Wait for ts_sendInfo
+    //Wait for ts_sendInfoRF
     pthread_mutex_lock(mutex_sendInfo);
-    pthread_cond_wait(ts_sendInfo, mutex_sendInfo);
+    pthread_cond_wait(ts_sendInfoRF, mutex_sendInfo);
     pthread_mutex_unlock(mutex_sendInfo);
 
     cout << "Ready to send message" << endl;
@@ -375,7 +375,7 @@ void * CThreadsAnimal::pv_RFComSenderHandler(void *threadid)
     //Send requested information
     p_rf->RFComSender(addrT, requestedInfo);
     pthread_mutex_lock(mutex_readInfo);
-    pthread_cond_signal(ts_readInfo);
+    pthread_cond_signal(ts_readInfoRF);
     pthread_mutex_unlock(mutex_readInfo);
   }
 }
@@ -395,7 +395,10 @@ void * CThreadsAnimal::pv_RFComReceiverHandler(void *threadid)
 
   while(1)
   {
-    pthread_cond_wait(ts_readInfo, mutex_readInfo);
+    pthread_mutex_lock(mutex_readInfo);
+    pthread_cond_wait(ts_readInfoRF, mutex_readInfo);
+    pthread_mutex_unlock(mutex_readInfo);
+    
     memset(message, '\0', MQRFCOMLEN);
     memset(msg2queue, '\0', MQRFCOMLEN);
 
@@ -473,10 +476,10 @@ void * CThreadsAnimal::pv_RFComReceiverHandler(void *threadid)
     cout << endl;
     #endif
 
-    cout << "Signal ts_sendInfo" << endl;
+    cout << "Signal ts_sendInfoRF" << endl;
     pthread_mutex_lock(mutex_sendInfo);
-    //Trigger ts_sendInfo
-    pthread_cond_signal(ts_sendInfo);
+    //Trigger ts_sendInfoRF
+    pthread_cond_signal(ts_sendInfoRF);
     pthread_mutex_unlock(mutex_sendInfo);
 
   }
@@ -755,12 +758,12 @@ void * CThreadsAnimal :: pv_processinInfoHandler(void *threadid)
 
     mq_getattr(mq_rfSender, &attr);
 
-    #if
+    #if DEBUG
     cout << "After:" << endl;
     printf("Maximum # of messages on queue: %ld\n", attr.mq_maxmsg);
     printf("Maximum message size: %ld\n", attr.mq_msgsize);
     printf("# of messages currently on queue: %ld\n", attr.mq_curmsgs);
-
+    #endif
 
     pthread_mutex_lock(mutex_endProcessing);
     //Trigger ts_endProcessing
@@ -775,7 +778,9 @@ void * CThreadsAnimal :: pv_gpsHandler(void *threadid)
   unsigned int msgqGPS_prio = 1;
   struct mq_attr attr;
 
+  #if DEBUG
   cout << "thread pv_gpsHandler" << endl;
+  #endif
 
   while(1)
   {

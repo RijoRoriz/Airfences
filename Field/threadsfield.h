@@ -10,6 +10,7 @@
 #include "tcpcom.h"
 #include "field.h"
 
+
 struct SanimalRegist
 {
 	int id;

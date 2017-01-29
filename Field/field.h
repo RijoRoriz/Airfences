@@ -3,7 +3,7 @@
 
 #include "fieldmap.h"
 #include "defines.h"
-
+// #include <list>
 
 struct Sanimal
 {
@@ -21,6 +21,10 @@ class CField
 {
 	private:
 		CFieldMap fieldmap;
+		// list<Sanimal> mL_greenList;
+		// list<Sanimal> mL_yellowList;
+		// list<Sanimal> mL_redList;
+
 		struct Sanimal *mL_greenList;
 		struct Sanimal *mL_yellowList;
 		struct Sanimal *mL_redList;

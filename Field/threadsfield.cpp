@@ -91,13 +91,9 @@ CThreadsField::CThreadsField()
   }
 
   /***** OBJECTS CONF *****/
-  uint8_t addrf[4];
-  addrf[0]= 0xFF;
-  addrf[1]= 0xFF;
-  addrf[2]= 0x00;
-  addrf[3]= 0x00;
+  unsigned char addrR[4] = {0xFF, 0xFF, 0x00, 0x01};
 
-  p_rf->RFComSetAddR(addrf);
+  p_rf->RFComSetAddR(addrR);
   run();
   pthread_mutex_lock(mutex_process);
   pthread_cond_signal(ts_process);
@@ -140,7 +136,10 @@ void * CThreadsField::pv_RFComSenderHandler(void *threadid)
 
   while (1)
   {
+    pthread_mutex_lock(mutex_sendInfoRF);
     pthread_cond_wait(ts_sendInfoRF, mutex_sendInfoRF);
+    pthread_mutex_unlock(mutex_sendInfoRF);
+
     pthread_mutex_lock(mutex_requested);
     id=p_field->getAnimal(zone_request);
     aux_manual_id=manual_id;
@@ -148,6 +147,7 @@ void * CThreadsField::pv_RFComSenderHandler(void *threadid)
     aux_type_request=type_request;
     memcpy(manual_msg,aux_msg,5);
     pthread_mutex_unlock(mutex_requested);
+
     if(aux_manual_id_request)
     {
       //send info for aux_manual_id with type aux_type_request
@@ -187,7 +187,10 @@ void  * CThreadsField::pv_RFComReceiverHandler(void *threadid)
   unsigned char aux[32];
   while (1)
   {
+    pthread_mutex_lock(mutex_readInfoRF);
     pthread_cond_wait(ts_readInfoRF, mutex_readInfoRF);
+    pthread_mutex_unlock(mutex_readInfoRF);
+
     pthread_mutex_lock(mutex_RF);
     p_rf->RFComReceiver(aux);
     pthread_mutex_unlock(mutex_RF);
@@ -226,7 +229,9 @@ void *CThreadsField::pv_processAnimalInfoHandler(void *threadid)
   int id=0;
   while (1)
   {
+    pthread_mutex_lock(mutex_process);
     pthread_cond_wait(ts_process, mutex_process);
+    pthread_mutex_unlock(mutex_process);
     //process next animal resquest
     //get id and zone
     p_field->setAnimal(1,GREENZONE);
