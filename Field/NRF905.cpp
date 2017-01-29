@@ -63,7 +63,7 @@ void CRFCom::RFComSetAddR(unsigned char *RxAddress)
       0x0C,                   //output power 10db, resend disable, Current Normal 											operation
       0x44,                   //4-byte address
       0x20,0x20,              //receive or send data length 32 bytes
-      0xCC,0xCC,0xCC,0xCC,    //receiving address
+      0xFF,0xFF,0x00,0x01,    //receiving address
       0x58,                   //CRC enable,8bit CRC,external clock disable,16MHZ 									Oscillator
 	};
 

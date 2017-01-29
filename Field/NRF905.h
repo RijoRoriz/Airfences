@@ -5,7 +5,7 @@
 class CRFCom
 {
 	private:
-					
+
 		bool m_cState;
 		int i_SetIdle();
 		int i_SetTx();
@@ -13,11 +13,11 @@ class CRFCom
 		unsigned char m_AddT[4];
 		void RFComSetPayload(unsigned char *Payload);
 		void RFComSetAddT(unsigned char *TxAddress);
-		
+
 	public:
 		CRFCom();
 		~CRFCom();
-		
+
 		void RFComSetAddR(unsigned char *RxAddress);
 		void RFComSender(unsigned char *TxAddress, unsigned char* Payload);
 		void RFComPrintConf();
