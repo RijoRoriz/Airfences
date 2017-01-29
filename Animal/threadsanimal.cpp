@@ -10,12 +10,11 @@ pthread_mutex_t *mutex_readBatTemp;
 pthread_mutex_t *mutex_queue_rf;
 
 pthread_mutex_t *mutex_animalZone;
-pthread_mutex_t *mutex_requestInfo;
+
 
 /***** SIGNALS *****/
 pthread_cond_t *ts_sendInfo;
 pthread_cond_t *ts_readInfo;
-pthread_cond_t *ts_requestInfo;
 
 pthread_cond_t *ts_endProcessing;
 pthread_cond_t *ts_GPSReady;
@@ -56,8 +55,7 @@ CThreadsAnimal::CThreadsAnimal()
   /***********************************************************************/
   mutex_queue_rf = new pthread_mutex_t();
   int mutex_queue_rf_status=pthread_mutex_init(mutex_queue_rf, NULL);
-  mutex_requestInfo = new pthread_mutex_t();
-  int mutex_requestInfo_status=pthread_mutex_init(mutex_requestInfo, NULL);
+
   /***********************************************************************/
 
   /***** SIGNALS *****/
@@ -74,8 +72,7 @@ CThreadsAnimal::CThreadsAnimal()
   ts_readBatTemp = new pthread_cond_t();
   int ts_readBatTemp_status=pthread_cond_init(ts_readBatTemp, NULL);
   /***********************************************************************/
-  ts_requestInfo = new pthread_cond_t();
-  int ts_requestInfo_status=pthread_cond_init(ts_requestInfo, NULL);
+
   /***********************************************************************/
 
   /***** QUEUES *****/
@@ -758,6 +755,7 @@ void * CThreadsAnimal :: pv_processinInfoHandler(void *threadid)
 
     mq_getattr(mq_rfSender, &attr);
 
+    #if
     cout << "After:" << endl;
     printf("Maximum # of messages on queue: %ld\n", attr.mq_maxmsg);
     printf("Maximum message size: %ld\n", attr.mq_msgsize);
