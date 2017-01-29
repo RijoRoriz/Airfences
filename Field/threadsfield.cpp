@@ -184,12 +184,18 @@ void * CThreadsField::pv_RFComSenderHandler(void *threadid)
 
 void  * CThreadsField::pv_RFComReceiverHandler(void *threadid)
 {
+  unsigned char aux[32];
   while (1)
   {
     pthread_cond_wait(ts_readInfoRF, mutex_readInfoRF);
+    pthread_mutex_lock(mutex_RF);
+    p_rf->RFComReceiver(aux);
+    pthread_mutex_unlock(mutex_RF);
+    delay(500);
     pthread_mutex_lock(mutex_process);
     pthread_cond_signal(ts_process);
     pthread_mutex_unlock(mutex_process);
+    cout << aux<< endl;
   }
 }
 
@@ -249,5 +255,5 @@ void  CThreadsField::run()
   pthread_detach(t_RFComReceiver);
   pthread_detach(t_RFComSender);
   //pthread_detach(t_WIFIComReceiver);
-  pthread_detach(t_WIFIComSender);
+  //pthread_detach(t_WIFIComSender);
 }
