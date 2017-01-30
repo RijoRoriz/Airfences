@@ -222,32 +222,30 @@ void *CThreadsField::pv_processAnimalInfoHandler(void *threadid)
   uint16_t id_field = FIELDADDRT;
   while (1)
   {
-    pthread_mutex_lock(mutex_process);
-    pthread_cond_wait(ts_process, mutex_process);
-    pthread_mutex_unlock(mutex_process);
-    //process next animal resquest
-    //get id and zone
-    p_field->setAnimal(1,GREENZONE);
+    if()
+    else{  pthread_mutex_lock(mutex_process);
+      pthread_cond_wait(ts_process, mutex_process);
+      pthread_mutex_unlock(mutex_process);
+      //process next animal resquest
+      //get id and zone
+      p_field->setAnimal(1,GREENZONE);
 
-    //pthread_mutex_lock(mutex_wifi_list);
-    //p_field->setAnimalInfo(id,GREENZONE);
-    //pthread_mutex_unlock(mutex_wifi_list);
+      //pthread_mutex_lock(mutex_wifi_list);
+      //p_field->setAnimalInfo(id,GREENZONE);
+      //pthread_mutex_unlock(mutex_wifi_list);
 
-    id=p_field->getAnimal(GREENZONE);
-    pthread_mutex_lock(mutex_RF);
-    memcpy(&msgRF[0],&id_field, 2);
-    memcpy(&msgRF[2],&id, 2);
-    msgRF[4]=type;
-    // memcpy(&msg[5],aux_msg,5);
-    // memcpy(&msg[],&animalAddr[2],2);
-    msgRF[5]=1;
-    msgRF[6]=1;
-    msgRF[7]=1;
-    pthread_mutex_unlock(mutex_RF);
-
-    pthread_mutex_lock(mutex_sendInfoRF);
-    pthread_cond_signal(ts_sendInfoRF);
-    pthread_mutex_unlock(mutex_sendInfoRF);
+      id=p_field->getAnimal(GREENZONE);
+      pthread_mutex_lock(mutex_RF);
+      memcpy(&msgRF[0],&id_field, 2);
+      memcpy(&msgRF[2],&id, 2);
+      msgRF[4]=type;
+      // memcpy(&msg[5],aux_msg,5);
+      // memcpy(&msg[],&animalAddr[2],2);
+      msgRF[5]=1;
+      msgRF[6]=1;
+      msgRF[7]=1;
+      pthread_mutex_unlock(mutex_RF);
+    }
 
     //sem_post(tsemaphore_wifisend);
 
