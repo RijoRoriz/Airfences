@@ -6,7 +6,6 @@ pthread_mutex_t * mutex_sendInfoRF;
 pthread_mutex_t * mutex_readInfoRF;
 pthread_mutex_t * mutex_endProcess;
 pthread_mutex_t * mutex_process;
-pthread_mutex_t * mutex_requested;
 pthread_mutex_t * mutex_wifi_list;
 pthread_mutex_t * mutex_RF;
 /***** SIGNALS *****/
@@ -27,11 +26,7 @@ CRFCom *p_rf;
 CField *p_field;
 CTcpCom *p_tcpcom;
 SanimalRegist *animalRegists;
-int zone_request=0;
-unsigned char type_request=0;
-bool manual_id_request=0;
-uint16_t manual_id=0;
-unsigned char manual_msg[5];
+unsigned char msgRF[32];
 
 
 CThreadsField::CThreadsField()
@@ -47,8 +42,6 @@ CThreadsField::CThreadsField()
   int mutex_process_status=pthread_mutex_init(mutex_process,NULL);
   mutex_endProcess = new pthread_mutex_t();
   int mutex_endProcess_status=pthread_mutex_init(mutex_endProcess,NULL);
-  mutex_requested = new pthread_mutex_t();
-  int mutex_zone_status=pthread_mutex_init(mutex_requested,NULL);
   mutex_wifi_list = new pthread_mutex_t();
   int mutex_wifi_list_status=pthread_mutex_init(mutex_wifi_list,NULL);
   mutex_RF = new pthread_mutex_t();
@@ -125,13 +118,6 @@ pthread_attr_t CThreadsField::setAttr(int prio)
 
 void * CThreadsField::pv_RFComSenderHandler(void *threadid)
 {
-  uint16_t id=0;
-  uint16_t id_field=1;
-  uint16_t aux_manual_id=0;
-  bool aux_manual_id_request=false;
-  unsigned char aux_type_request='I';
-  unsigned char aux_msg[5];
-  unsigned char sendMsg[32];
   unsigned char animalAddr[4];
 
   while (1)
@@ -140,45 +126,13 @@ void * CThreadsField::pv_RFComSenderHandler(void *threadid)
     pthread_cond_wait(ts_sendInfoRF, mutex_sendInfoRF);
     pthread_mutex_unlock(mutex_sendInfoRF);
 
-    pthread_mutex_lock(mutex_requested);
-    id=p_field->getAnimal(zone_request);
-    aux_manual_id=manual_id;
-    aux_manual_id_request=manual_id_request;
-    aux_type_request=type_request;
-    memcpy(manual_msg,aux_msg,5);
-    pthread_mutex_unlock(mutex_requested);
-
-    if(aux_manual_id_request)
-    {
-      cout << "manual request";
-      //send info for aux_manual_id with type aux_type_request
-      memcpy(&id_field, &sendMsg[0], 2);
-      memcpy(&aux_manual_id, &sendMsg[2], 2);
-      sendMsg[4]=aux_type_request;
-      memcpy(aux_msg,&sendMsg[5],5);
-      animalAddr[0]=0xAA;
-      animalAddr[1]=0xAA;
-      memcpy(&aux_manual_id,&animalAddr[2],2);
-    }
-    else if(id!=-1)
-    {
-      // send info for id with type Information
-      cout << "auto request"<< endl;
-      memcpy(&id_field, &sendMsg[0], 2);
-      memcpy(&id, &sendMsg[2], 2);
-      sendMsg[4]='I';
-      memcpy(aux_msg,&sendMsg[5],5);
-      animalAddr[0]=0xAA;
-      animalAddr[1]=0xAA;
-      memcpy(&id,&animalAddr[2],2);
-      uint16_t teste = 0x45;
-      //cout << "msg:"<< hex << teste << " addr:" << hex << animalAddr[0] << endl;
-
-      printf("valor %x", teste);
-    }
-
+    animalAddr[0]=0xAA;
+    animalAddr[1]=0xAA;
+    animalAddr[2]=0x00;
+    animalAddr[3]=0x01;
     pthread_mutex_lock(mutex_RF);
-    p_rf->RFComSender(animalAddr,sendMsg);
+    p_rf->RFComSender(animalAddr,msgRF);
+    p_rf->RFComPrintTPaylo();
     pthread_mutex_unlock(mutex_RF);
 
     pthread_mutex_lock(mutex_readInfoRF);
@@ -191,6 +145,8 @@ void * CThreadsField::pv_RFComSenderHandler(void *threadid)
 void  * CThreadsField::pv_RFComReceiverHandler(void *threadid)
 {
   unsigned char aux[32];
+  int trys=0;
+  bool receved=false;
   while (1)
   {
     pthread_mutex_lock(mutex_readInfoRF);
@@ -198,9 +154,38 @@ void  * CThreadsField::pv_RFComReceiverHandler(void *threadid)
     pthread_mutex_unlock(mutex_readInfoRF);
 
     pthread_mutex_lock(mutex_RF);
-    p_rf->RFComReceiver(aux);
+    receved=p_rf->RFComReceiver(aux);
     pthread_mutex_unlock(mutex_RF);
-    delay(500);
+    if(!receved)
+    {
+      if(trys<3)
+      {
+        trys++;
+        cout << "timeout"<< endl;
+        pthread_mutex_lock(mutex_sendInfoRF);
+        pthread_cond_signal(ts_sendInfoRF);
+        pthread_mutex_unlock(mutex_sendInfoRF);
+      }
+      else
+      {
+        cout << "not found"<< endl;
+        trys=0;
+      }
+
+    }
+    else
+    {
+      trys=0;
+      receved=false;
+      pthread_mutex_lock(mutex_RF);
+      //p_rf->RFComPrintRPaylo();
+      for(int i=0;i<23;i++)
+      {
+        printf("%x ", aux[i] );
+      }
+      pthread_mutex_unlock(mutex_RF);
+
+    }
     //pthread_mutex_lock(mutex_process);
     //pthread_cond_signal(ts_process);
     //pthread_mutex_unlock(mutex_process);
@@ -232,7 +217,9 @@ void *CThreadsField::pv_WIFIComSenderHandler(void *threadid)
 
 void *CThreadsField::pv_processAnimalInfoHandler(void *threadid)
 {
-  int id=0;
+  uint16_t id=0;
+  unsigned char type='I';
+  uint16_t id_field = FIELDADDRT;
   while (1)
   {
     pthread_mutex_lock(mutex_process);
@@ -241,15 +228,22 @@ void *CThreadsField::pv_processAnimalInfoHandler(void *threadid)
     //process next animal resquest
     //get id and zone
     p_field->setAnimal(1,GREENZONE);
-    pthread_mutex_lock(mutex_requested);
-    zone_request=GREENZONE;
-    type_request='I';
-    manual_id_request=false;
-    pthread_mutex_unlock(mutex_requested);
 
     //pthread_mutex_lock(mutex_wifi_list);
     //p_field->setAnimalInfo(id,GREENZONE);
     //pthread_mutex_unlock(mutex_wifi_list);
+
+    id=p_field->getAnimal(GREENZONE);
+    pthread_mutex_lock(mutex_RF);
+    memcpy(&msgRF[0],&id_field, 2);
+    memcpy(&msgRF[2],&id, 2);
+    msgRF[4]=type;
+    // memcpy(&msg[5],aux_msg,5);
+    // memcpy(&msg[],&animalAddr[2],2);
+    msgRF[5]=1;
+    msgRF[6]=1;
+    msgRF[7]=1;
+    pthread_mutex_unlock(mutex_RF);
 
     pthread_mutex_lock(mutex_sendInfoRF);
     pthread_cond_signal(ts_sendInfoRF);
