@@ -24,7 +24,9 @@
 #define MQWIFILEN      200
 #define MQRFCOM        "/mq_rf"
 #define MQRFCOMLEN     32
+#define BUFF_LEN       33
 
+#define TIMEOUT_RF_RECEIVER  3
 
 
 #define OUTZONE     4
