@@ -122,7 +122,6 @@ void * CThreadsField::pv_RFComSenderHandler(void *threadid)
 
   while (1)
   {
-    trys=0;
     pthread_mutex_lock(mutex_sendInfoRF);
     pthread_cond_wait(ts_sendInfoRF, mutex_sendInfoRF);
     pthread_mutex_unlock(mutex_sendInfoRF);
@@ -133,6 +132,7 @@ void * CThreadsField::pv_RFComSenderHandler(void *threadid)
     animalAddr[3]=0x01;
     pthread_mutex_lock(mutex_RF);
     p_rf->RFComSender(animalAddr,msgRF);
+    p_rf->RFComPrintTPaylo();
     pthread_mutex_unlock(mutex_RF);
 
     pthread_mutex_lock(mutex_readInfoRF);
@@ -149,7 +149,6 @@ void  * CThreadsField::pv_RFComReceiverHandler(void *threadid)
   bool receved=false;
   while (1)
   {
-    trys=0;
     pthread_mutex_lock(mutex_readInfoRF);
     pthread_cond_wait(ts_readInfoRF, mutex_readInfoRF);
     pthread_mutex_unlock(mutex_readInfoRF);
@@ -167,12 +166,25 @@ void  * CThreadsField::pv_RFComReceiverHandler(void *threadid)
         pthread_cond_signal(ts_sendInfoRF);
         pthread_mutex_unlock(mutex_sendInfoRF);
       }
+      else
+      {
+        cout << "not found"<< endl;
+        trys=0;
+      }
 
     }
     else
     {
       trys=0;
       receved=false;
+      pthread_mutex_lock(mutex_RF);
+      //p_rf->RFComPrintRPaylo();
+      for(int i=0;i<23;i++)
+      {
+        printf("%x ", aux[i] );
+      }
+      pthread_mutex_unlock(mutex_RF);
+
     }
     //pthread_mutex_lock(mutex_process);
     //pthread_cond_signal(ts_process);
@@ -206,8 +218,8 @@ void *CThreadsField::pv_WIFIComSenderHandler(void *threadid)
 void *CThreadsField::pv_processAnimalInfoHandler(void *threadid)
 {
   uint16_t id=0;
-  unsigned char msg[32];
   unsigned char type='I';
+  uint16_t id_field = FIELDADDRT;
   while (1)
   {
     pthread_mutex_lock(mutex_process);
@@ -223,12 +235,14 @@ void *CThreadsField::pv_processAnimalInfoHandler(void *threadid)
 
     id=p_field->getAnimal(GREENZONE);
     pthread_mutex_lock(mutex_RF);
-    memcpy(&msg[0],&id_field, 2);
-    memcpy(&msg[2],&id, 2);
-    msg[4]=type;
+    memcpy(&msgRF[0],&id_field, 2);
+    memcpy(&msgRF[2],&id, 2);
+    msgRF[4]=type;
     // memcpy(&msg[5],aux_msg,5);
     // memcpy(&msg[],&animalAddr[2],2);
-    msg[5]=1;
+    msgRF[5]=1;
+    msgRF[6]=1;
+    msgRF[7]=1;
     pthread_mutex_unlock(mutex_RF);
 
     pthread_mutex_lock(mutex_sendInfoRF);

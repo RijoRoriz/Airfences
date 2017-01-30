@@ -42,6 +42,7 @@
 #define FIELDADDR1 0xFF
 #define FIELDADDR2 0x00
 #define FIELDADDR3 0x01
+#define FIELDADDRT 1;
 
 // Registers
 #define NRF905_WRITE_CONF		     0x00
