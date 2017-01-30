@@ -311,9 +311,11 @@ void *CThreadsField::pv_processAnimalInfoHandler(void *threadid)
       pthread_mutex_unlock(mutex_RF);
     }
 
+
     pthread_mutex_lock(mutex_sendInfoRF);
     pthread_cond_signal(ts_sendInfoRF);
     pthread_mutex_unlock(mutex_sendInfoRF);
+
 
     //sem_post(tsemaphore_wifisend);
   }
