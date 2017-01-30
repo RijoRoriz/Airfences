@@ -296,7 +296,7 @@ void * CThreadsAnimal::pv_RFComSenderHandler(void *threadid)
     #if DEBUG
     cout << "mq_receive(mq_rfReceiver): ";
     for(int i=0; i < MQRFCOMLEN; i++) {
-      printf("%X", cCommand[i]);
+      printf("%X ", cCommand[i]);
     }
     cout << endl;
     #endif
@@ -320,60 +320,60 @@ void * CThreadsAnimal::pv_RFComSenderHandler(void *threadid)
 
     cout << "mq_receive(mq_rfSender): ";
     for(int i=0; i < 33; i++) {
-      printf("%X", cAnimalInfo[i]);
+      printf("%X ", cAnimalInfo[i]);
     }
     cout << endl;
 
     // if(msgsz > 0) {
-    //   //Check what to send
-    //
-    //
-    //
-    //
-    //   switch (cCommand[4]) {
-    //     case 'R':
-    //     case 'N': //Send message received to field to know that the message was delivered
-    //     case 'C':
-    //     for(int i=0; i < MQRFCOMLEN; i++) {
-    //       requestedInfo[i] = static_cast<unsigned char>(cCommand[i]);
-    //     }
-    //     break;
-    //
-    //     case 'I': // Request Info
-    //     if(cCommand[5] == 1) { //Request Temperature
-    //       memcpy(&requestedInfo[4], &cAnimalInfo[4],4);
-    //     }
-    //     if(cCommand[6] == 1) { //Request Battery
-    //       memcpy(&requestedInfo[8], &cAnimalInfo[8],4);
-    //     }
-    //     if(cCommand[7] == 1) { //Request GPS
-    //       memcpy(&requestedInfo[12], &cAnimalInfo[12], 1);
-    //       memcpy(&requestedInfo[14], &cAnimalInfo[14], 4);
-    //       memcpy(&requestedInfo[18], &cAnimalInfo[18], 4);
-    //
-    //     }
-    //     if(cCommand[8] == 1) { //Request RF
-    //
-    //     }
-    //     break;
-    //
-    //     default:
-    //     break;
-    //   }
-    //
-    //
+      //Check what to send
+      cout << "msgz > 0" << endl;
+
+
+
+
+      switch (cCommand[4]) {
+        case 'R':
+        case 'N': //Send message received to field to know that the message was delivered
+        case 'C':
+        for(int i=0; i < MQRFCOMLEN; i++) {
+          requestedInfo[i] = static_cast<unsigned char>(cCommand[i]);
+        }
+        break;
+
+        case 'I': // Request Info
+        memcpy(&requestedInfo[0], &cCommand[0], 2);
+        memcpy(&requestedInfo[2], &cCommand[2], 2);
+
+        if(cCommand[5] == 1) { //Request Temperature
+          memcpy(&requestedInfo[4], &cAnimalInfo[4],4);
+        }
+        if(cCommand[6] == 1) { //Request Battery
+          memcpy(&requestedInfo[8], &cAnimalInfo[8],4);
+        }
+        if(cCommand[7] == 1) { //Request GPS
+          memcpy(&requestedInfo[12], &cAnimalInfo[12], 1);
+          memcpy(&requestedInfo[14], &cAnimalInfo[14], 4);
+          memcpy(&requestedInfo[18], &cAnimalInfo[18], 4);
+
+        }
+        if(cCommand[8] == 1) { //Request RF
+
+        }
+        break;
+
+        default:
+        break;
+      }
+
+
     // }
     // else {
     //
     // }
-    // //Save content to char message[33]
-    // for(int i=0; i < 33; i++)
-    // {
-    //   requestedInfo[i] = (unsigned char) cCommand[i];
-    // }
-    //
+
     //Send requested information
     p_rf->RFComSender(addrT, requestedInfo);
+    // p_rf->RFComPrintTPaylo();
     pthread_mutex_lock(mutex_readInfo);
     pthread_cond_signal(ts_readInfoRF);
     pthread_mutex_unlock(mutex_readInfo);
@@ -398,17 +398,18 @@ void * CThreadsAnimal::pv_RFComReceiverHandler(void *threadid)
     pthread_mutex_lock(mutex_readInfo);
     pthread_cond_wait(ts_readInfoRF, mutex_readInfo);
     pthread_mutex_unlock(mutex_readInfo);
-    
+
     memset(message, '\0', MQRFCOMLEN);
     memset(msg2queue, '\0', MQRFCOMLEN);
 
     cout << "Waiting message" << endl;
     p_rf->RFComReceiver(message);  //Wait for a message
+    // p_rf->RFComPrintRPaylo();
 
     cout << "MESSAGE RECEIVEID: ";
     for(int i=0; i < MQRFCOMLEN; i++)
     {
-      printf("%X", message[i] );
+      printf("%X ", message[i] );
     }
     cout << endl;
 
@@ -471,7 +472,7 @@ void * CThreadsAnimal::pv_RFComReceiverHandler(void *threadid)
     #if DEBUG
     cout << "mq_send(mq_rfReceiver): ";
     for(int i=0; i < MQRFCOMLEN; i++) {
-      printf("%X", msg2queue[i]);
+      printf("%X ", msg2queue[i]);
     }
     cout << endl;
     #endif
@@ -647,6 +648,7 @@ void * CThreadsAnimal :: pv_processinInfoHandler(void *threadid)
     memset(cbatTempInfo, '\0', MAX_MSG_LEN);
     memset(cAnimalInfo, '\0', 33);
 
+
     // pthread_mutex_lock(mutex_queue_rf);
     //Open mq_GPS
     //mq_close(mq_GPS);
@@ -661,16 +663,7 @@ void * CThreadsAnimal :: pv_processinInfoHandler(void *threadid)
   	    perror("CThreadsAnimal::pv_processinInfoHandler In mq_receive()");
   	    //exit(1);
   	}
-
-    // mq_getattr(mq_GPS, &attr);
-    // cout << "thread pv_processinInfoHandler" << endl;
-    // printf("Maximum # of messages on queue: %ld\n", attr.mq_maxmsg);
-    // printf("Maximum message size: %ld\n", attr.mq_msgsize);
-    // printf("# of messages currently on queue: %ld\n", attr.mq_curmsgs);
-
     mq_close(mq_GPS);
-
-    // cout << "Bytes: " << msgsz << " mq_GPS: " << cAnimalCoordinates << endl;
 
     sscanf(cAnimalCoordinates, "%f;%f", &latitude, &longitude);
     //Calculate which zone is the animal
@@ -689,7 +682,7 @@ void * CThreadsAnimal :: pv_processinInfoHandler(void *threadid)
     pthread_mutex_unlock(mutex_animalZone);
 
     //GPS info
-    // memcpy(&cAnimalInfo[12], &iAnimalZone, 1 //VERIFICAR
+    memcpy(&cAnimalInfo[12], &iAnimalZone, 1); //VERIFICAR
     memcpy(&cAnimalInfo[14], &latitude, 4);
     memcpy(&cAnimalInfo[18], &longitude, 4);
 
@@ -725,7 +718,7 @@ void * CThreadsAnimal :: pv_processinInfoHandler(void *threadid)
     printf("Maximum message size: %ld\n", attr.mq_msgsize);
     printf("# of messages currently on queue: %ld\n", attr.mq_curmsgs);
 
-    while(attr.mq_curmsgs > 0) {
+    while(attr.mq_curmsgs > 2) {
       cout << "maior q um"  << endl;
       msgsz = mq_receive(mq_rfSender, buffer, MAX_MSG_LEN, &sender);
       if (msgsz == -1) {

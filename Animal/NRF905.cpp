@@ -216,7 +216,7 @@ void CRFCom::RFComPrintTPaylo()
 	printf("TPayload:");
 	for(int i=1;i<33;i++)
 	{
-		printf("%x ", configurationread[i]);
+		printf("%X ", configurationread[i]);
 	}
 	printf("\n");
 }
@@ -231,7 +231,7 @@ void CRFCom::RFComPrintRPaylo()
 	printf("RPayload:");
 	for(int i=1;i<33;i++)
 	{
-		printf("%x ", configurationread[i]);
+		printf("%X ", configurationread[i]);
 	}
 
 	printf("\n");
