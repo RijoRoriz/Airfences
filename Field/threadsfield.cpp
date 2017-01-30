@@ -150,6 +150,7 @@ void * CThreadsField::pv_RFComSenderHandler(void *threadid)
 
     if(aux_manual_id_request)
     {
+      cout << "manual request";
       //send info for aux_manual_id with type aux_type_request
       memcpy(&id_field, &sendMsg[0], 2);
       memcpy(&aux_manual_id, &sendMsg[2], 2);
@@ -162,6 +163,7 @@ void * CThreadsField::pv_RFComSenderHandler(void *threadid)
     else if(id!=-1)
     {
       // send info for id with type Information
+      cout << "auto request"<< endl;
       memcpy(&id_field, &sendMsg[0], 2);
       memcpy(&id, &sendMsg[2], 2);
       sendMsg[4]='I';
@@ -169,6 +171,10 @@ void * CThreadsField::pv_RFComSenderHandler(void *threadid)
       animalAddr[0]=0xAA;
       animalAddr[1]=0xAA;
       memcpy(&id,&animalAddr[2],2);
+      uint16_t teste = 0x45;
+      //cout << "msg:"<< hex << teste << " addr:" << hex << animalAddr[0] << endl;
+
+      printf("valor %x", teste);
     }
 
     pthread_mutex_lock(mutex_RF);
@@ -195,9 +201,9 @@ void  * CThreadsField::pv_RFComReceiverHandler(void *threadid)
     p_rf->RFComReceiver(aux);
     pthread_mutex_unlock(mutex_RF);
     delay(500);
-    pthread_mutex_lock(mutex_process);
-    pthread_cond_signal(ts_process);
-    pthread_mutex_unlock(mutex_process);
+    //pthread_mutex_lock(mutex_process);
+    //pthread_cond_signal(ts_process);
+    //pthread_mutex_unlock(mutex_process);
     cout << aux<< endl;
   }
 }
@@ -241,15 +247,15 @@ void *CThreadsField::pv_processAnimalInfoHandler(void *threadid)
     manual_id_request=false;
     pthread_mutex_unlock(mutex_requested);
 
-    pthread_mutex_lock(mutex_wifi_list);
+    //pthread_mutex_lock(mutex_wifi_list);
     //p_field->setAnimalInfo(id,GREENZONE);
-    pthread_mutex_unlock(mutex_wifi_list);
+    //pthread_mutex_unlock(mutex_wifi_list);
 
     pthread_mutex_lock(mutex_sendInfoRF);
     pthread_cond_signal(ts_sendInfoRF);
     pthread_mutex_unlock(mutex_sendInfoRF);
 
-    sem_post(tsemaphore_wifisend);
+    //sem_post(tsemaphore_wifisend);
 
   }
 }
