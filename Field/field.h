@@ -12,7 +12,7 @@ struct Sanimal
 
 struct SanimalInfo
 {
-	char msg[32];
+	unsigned char msg[32];
 	SanimalInfo * pointer;
 };
 
@@ -38,8 +38,8 @@ class CField
 		void setAnimal(uint16_t id, int list);
 	 	uint16_t getAnimal(int list);
 		uint16_t getNextAnimal();
-		void setAnimalInfo(char *msg);
-		void getAnimalInfo(char* returnedMsg);
+		void setAnimalInfo(unsigned char *msg);
+		void getAnimalInfo(unsigned char* returnedMsg);
 		void set_idAnimal(uint16_t);
 		uint16_t get_idAnimal();
 		void set_idField(uint16_t);
