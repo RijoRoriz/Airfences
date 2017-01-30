@@ -21,10 +21,12 @@
 #define MQGPS          "/mq_gps"
 #define MQGPSLEN       24
 #define MQWIFI         "/mq_wifi"
+#define MQ_WIFI_R      "/mq_wifi_R"
 #define MQWIFILEN      200
 #define MQRFCOM        "/mq_rf"
 #define MQRFCOMLEN     32
 #define BUFF_LEN       33
+#define MAX_MSG_LEN    10000
 
 #define TIMEOUT_RF_RECEIVER  2
 

@@ -3,7 +3,6 @@
 
 #include "fieldmap.h"
 #include "defines.h"
-// #include <list>
 
 struct Sanimal
 {
@@ -21,9 +20,6 @@ class CField
 {
 	private:
 		CFieldMap fieldmap;
-		// list<Sanimal> mL_greenList;
-		// list<Sanimal> mL_yellowList;
-		// list<Sanimal> mL_redList;
 
 		struct Sanimal *mL_greenList;
 		struct Sanimal *mL_yellowList;
@@ -32,11 +28,16 @@ class CField
 		struct SanimalInfo *mL_wifiInfoList;
 		uint16_t idField;
 
+		int mi_count_Red;
+	  int mi_count_Yellow;
+	  int mi_count_Green;
+
 	public:
 		CField();
 		~CField();
 		void setAnimal(uint16_t id, int list);
-	 	int getAnimal(int list);
+	 	uint16_t getAnimal(int list);
+		uint16_t getNextAnimal();
 		void setAnimalInfo(char *msg);
 		void getAnimalInfo(char* returnedMsg);
 		void set_idAnimal(uint16_t);
