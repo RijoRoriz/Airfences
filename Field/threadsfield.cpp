@@ -291,13 +291,13 @@ void *CThreadsField::pv_WIFIComSenderHandler(void *threadid)
     pthread_mutex_unlock (mutex_wifi_list);
     cout << "wifi send" << endl;
     snprintf(poststring,200,"animal_id=%d&zone_id=%d&field_id=%d&date=%s&temp=%f&latitude=%f&longitude=%f&bat=%f",idAnimal,zone,idField,"15",temperature,latitude);
-    cout << "poststring: "<< poststring << "tamanho: "<<strlen(post_send) <<endl << endl;
+    cout << "poststring: "<< poststring << "tamanho: "<<strlen(poststring) <<endl << endl;
     snprintf(post_send,300,
       "POST /Airfences/give_data.php HTTP/1.1\r\n"
       "Host: localhost\r\n"
       "Content-Type: text/html\r\n"
       "Content-Length: %d\r\n\r\n"
-      "%s",strlen(post_send),poststring);
+      "%s",strlen(poststring),poststring);
     cout << "enviar:" << post_send << endl << endl;
     p_tcpcom->TcpComTransmite(post_send,strlen(post_send));
 
