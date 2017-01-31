@@ -1,6 +1,6 @@
 #include "defines.h"
 
-#define MAX_BAT_LEVEL    2.0
+#define MAX_BAT_LEVEL    3.17
 
 using namespace std;
 
