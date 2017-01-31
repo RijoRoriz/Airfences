@@ -1,11 +1,5 @@
 #include "animal.h"
 
-extern pthread_mutex_t *mutex_readGPS;
-extern pthread_mutex_t *mutex_readBatTemp;
-
-extern pthread_cond_t *ts_readGPS;
-extern pthread_cond_t *ts_readBatTemp;
-
 CAnimal :: CAnimal()
 {
   mui_idAnimal = 0;
@@ -157,13 +151,3 @@ void CAnimal :: m_loadAnimalConf()
     perror("CAnimal::m_loadAnimalConf In infile.open()");
   }
 }
-
-// bool CAnimal :: saveAnimalInfo()
-// {
-//
-// }
-//
-// bool CAnimal :: loadAnimalInfo()
-// {
-//
-// }

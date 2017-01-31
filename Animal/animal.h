@@ -24,8 +24,6 @@ class CAnimal
 		SSquare m_fenceLimits;
 
 		int mi_timeout;
-		//float mi_Temp;
-		//float mf_Bat;
 
 	public:
 		CAnimal();
@@ -43,9 +41,6 @@ class CAnimal
 		SSquare mssq_getAnimalFenceLimits();
 		void m_saveAnimalConf(); //Save Animal configuations  (ID, FieldID, field coordinates)
 		void m_loadAnimalConf();
-
-		//bool saveAnimalInfo();
-		//bool loadAnimalInfo();
 
 };
 

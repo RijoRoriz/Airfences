@@ -11,12 +11,12 @@ pthread_mutex_t * mutex_RF;
 /***** SIGNALS *****/
 pthread_cond_t *ts_sendInfoRF;
 pthread_cond_t *ts_readInfoRF;
-pthread_cond_t *ts_readInfoTcp;
+pthread_cond_t *ts_readInfoWifi;
 pthread_cond_t *ts_endProcess;
 pthread_cond_t *ts_process;
 
 /***** SEMAPHORES *****/
-sem_t *tsemaphore_wifisend;
+sem_t *tsem_sendInfoWifi;
 
 /***** QUEUES *****/
 mqd_t mq_rf;
@@ -27,7 +27,8 @@ CRFCom *p_rf;
 CField *p_field;
 CTcpCom *p_tcpcom;
 SanimalRegist *animalRegists;
-unsigned char msgRF[32];
+unsigned char msgRfSender[32];
+
 
 
 CThreadsField::CThreadsField()
@@ -49,8 +50,8 @@ CThreadsField::CThreadsField()
   int mutex_RF_status=pthread_mutex_init(mutex_RF,NULL);
 
   /***** SIGNALS *****/
-  ts_readInfoTcp = new pthread_cond_t();
-  int ts_readInfoTcp_status=pthread_cond_init(ts_readInfoTcp, NULL);
+  ts_readInfoWifi = new pthread_cond_t();
+  int ts_readInfoTcp_status=pthread_cond_init(ts_readInfoWifi, NULL);
   ts_sendInfoRF = new pthread_cond_t();
   int ts_sendInfoRF_status=pthread_cond_init(ts_sendInfoRF, NULL);
   ts_readInfoRF = new pthread_cond_t();
@@ -71,8 +72,8 @@ CThreadsField::CThreadsField()
 
 
   /***** SEMAPHORES *****/
-  tsemaphore_wifisend = new sem_t();
-  sem_init(tsemaphore_wifisend,0,0);
+  tsem_sendInfoWifi = new sem_t();
+  sem_init(tsem_sendInfoWifi,0,0);
 
   /***** OBJECT *****/
   p_field = new CField();
@@ -142,7 +143,7 @@ void * CThreadsField::pv_RFComSenderHandler(void *threadid)
     animalAddr[2]=0x00;
     animalAddr[3]=0x01;
     pthread_mutex_lock(mutex_RF);
-    p_rf->RFComSender(animalAddr,msgRF);
+    p_rf->RFComSender(animalAddr,msgRfSender);
     p_rf->RFComPrintTPaylo();
     pthread_mutex_unlock(mutex_RF);
 
@@ -155,7 +156,8 @@ void * CThreadsField::pv_RFComSenderHandler(void *threadid)
 
 void  * CThreadsField::pv_RFComReceiverHandler(void *threadid)
 {
-  unsigned char aux[32];
+  unsigned char msgRfReceiver[32];
+  char msgWifiSender[32];
   int trys=0;
   bool receved=false;
   while (1)
@@ -164,10 +166,13 @@ void  * CThreadsField::pv_RFComReceiverHandler(void *threadid)
     pthread_cond_wait(ts_readInfoRF, mutex_readInfoRF);
     pthread_mutex_unlock(mutex_readInfoRF);
 
+    memset(msgRfReceiver, '\0', 32);
+    memset(msgWifiSender, '\0', 32);
+
     pthread_mutex_lock(mutex_RF);
-    receved=p_rf->RFComReceiver(aux);
+    receved=p_rf->RFComReceiver(msgRfReceiver);
     pthread_mutex_unlock(mutex_RF);
-    if(!receved)
+    if(!receved) //Message not received
     {
       if(trys<3)
       {
@@ -181,26 +186,38 @@ void  * CThreadsField::pv_RFComReceiverHandler(void *threadid)
       {
         cout << "not found"<< endl;
         trys=0;
+
       }
 
     }
     else
-    {
+    { //Message Received
       trys=0;
       receved=false;
       pthread_mutex_lock(mutex_RF);
       //p_rf->RFComPrintRPaylo();
       for(int i=0;i<23;i++)
       {
-        printf("%x ", aux[i] );
+        printf("%x ", msgRfReceiver[i] );
+      }
+      //Falta comparar strings
+
+      //Information requested (Command 'I')
+      for(int i=0; i < 32; i++) {
+        msgWifiSender[i] = static_cast<char>(msgRfReceiver[i]);
       }
       pthread_mutex_unlock(mutex_RF);
 
+      pthread_mutex_lock(mutex_wifi_list);
+      p_field->setAnimalInfo(msgWifiSender);
+      pthread_mutex_unlock(mutex_wifi_list);
+
+      sem_post(tsem_sendInfoWifi);
+
     }
-    //pthread_mutex_lock(mutex_process);
-    //pthread_cond_signal(ts_process);
-    //pthread_mutex_unlock(mutex_process);
-    cout << aux<< endl;
+    pthread_mutex_lock(mutex_process);
+    pthread_cond_signal(ts_process);
+    pthread_mutex_unlock(mutex_process);
   }
 }
 
@@ -213,7 +230,7 @@ void  * CThreadsField::pv_WIFIComReceiverHandler(void *threadid)
   while (1)
   {
     pthread_mutex_lock(mutex_readInfoTcp);
-    pthread_cond_wait(ts_readInfoTcp, mutex_readInfoTcp);
+    pthread_cond_wait(ts_readInfoWifi, mutex_readInfoTcp);
     pthread_mutex_unlock(mutex_readInfoTcp);
 
     memset(cReadWifi, '\0', 32);
@@ -241,12 +258,19 @@ void  * CThreadsField::pv_WIFIComReceiverHandler(void *threadid)
 void *CThreadsField::pv_WIFIComSenderHandler(void *threadid)
 {
   char buffer[32];
+  uint16_t idAnimal, idField;
+  char command;
+  float temperature, baterry;
+  int zone;
+  float latitude, longitude;
+
   while (1)
   {
-    sem_wait (tsemaphore_wifisend);
+    sem_wait (tsem_sendInfoWifi);
     pthread_mutex_lock (mutex_wifi_list);
     p_field->getAnimalInfo(buffer);
     pthread_mutex_unlock (mutex_wifi_list);
+
     cout << buffer << endl;
   }
 }
@@ -280,7 +304,7 @@ void *CThreadsField::pv_processAnimalInfoHandler(void *threadid)
 
     //Have a commando to send by wifi ('N' or 'C')
     if(attr.mq_curmsgs > 0) {
-      msgsz = mq_receive(mq_wifiReceiver, buffer, MAX_MSG_LEN, &sender);
+      int msgsz = mq_receive(mq_wifiReceiver, buffer, MAX_MSG_LEN, &sender);
       if (msgsz == -1) {
         perror("CThreadsField::pv_processAnimalInfoHandler In mq_receive()");
         //exit(1);
@@ -300,14 +324,14 @@ void *CThreadsField::pv_processAnimalInfoHandler(void *threadid)
 
       id=p_field->getAnimal(GREENZONE);
       pthread_mutex_lock(mutex_RF);
-      memcpy(&msgRF[0],&id_field, 2);
-      memcpy(&msgRF[2],&id, 2);
-      msgRF[4]=type;
+      memcpy(&msgRfSender[0],&id_field, 2);
+      memcpy(&msgRfSender[2],&id, 2);
+      msgRfSender[4]=type;
       // memcpy(&msg[5],aux_msg,5);
       // memcpy(&msg[],&animalAddr[2],2);
-      msgRF[5]=1;
-      msgRF[6]=1;
-      msgRF[7]=1;
+      msgRfSender[5]=1;
+      msgRfSender[6]=1;
+      msgRfSender[7]=1;
       pthread_mutex_unlock(mutex_RF);
     }
 
@@ -317,7 +341,7 @@ void *CThreadsField::pv_processAnimalInfoHandler(void *threadid)
     pthread_mutex_unlock(mutex_sendInfoRF);
 
 
-    //sem_post(tsemaphore_wifisend);
+    //sem_post(tsem_sendInfoWifi);
   }
 }
 

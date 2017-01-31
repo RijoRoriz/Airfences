@@ -42,7 +42,7 @@ struct SSquare
 #define MQRFSENDER     "/mq_rfSender"
 #define MAX_MSG_LEN    10000
 
-#define MIN_BATTERY_LEVEL 1.5
+#define TEMP_ANIMAL  38.0
 
 #define OUTZONE     4
 #define REDZONE     3

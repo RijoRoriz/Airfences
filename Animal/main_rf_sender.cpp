@@ -8,7 +8,7 @@ int main( int argc, char * argv [] )
 	unsigned char message[33];
 	unsigned char addrT[4] = {0xAA, 0xAA, 0x00, 0x01};
 	unsigned char addrR[4] = {0xFF, 0xFF, 0x00, 0x01};
-	uint16_t idAnimal = 3;
+	uint16_t idAnimal = 1;
 	uint16_t idField = 1;
 	float lat1 = 41.501333;
 	float long1 = -8.349984;

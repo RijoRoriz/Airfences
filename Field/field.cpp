@@ -6,49 +6,42 @@ CField::CField(){
 }
 
 CField::~CField(){
-  while(getAnimal(GREENZONE)!=-1);
-  while(getAnimal(YELLOWZONE)!=-1);
-  while(getAnimal(REDZONE)!=1);
+  while(getAnimal(GREENZONE)!=0);
+  while(getAnimal(YELLOWZONE)!=0);
+  while(getAnimal(REDZONE)!=0);
 }
+
 void CField::setAnimal(uint16_t ids, int list)
 {
   Sanimal* aux=NULL;
-  if(list==GREENZONE)
-  {
+  if(list==GREENZONE) {
     aux=mL_greenList;
-    if(!aux)
-    {
+    if(!aux) {
       aux = new Sanimal();
       aux->id= ids;
       aux->pointer = NULL;
       mL_greenList=aux;
     }
-    else
-    {
-      while(aux->pointer)
-      {
+    else {
+      while(aux->pointer) {
         aux=aux->pointer;
       }
       aux->pointer = new Sanimal();
       aux->pointer->id= ids;
       aux->pointer->pointer = NULL;
     }
-
   }
-  else if(list==YELLOWZONE)
-  {
+
+  else if(list==YELLOWZONE) {
     aux=mL_yellowList;
-    if(!aux)
-    {
+    if(!aux) {
       aux = new Sanimal();
       aux->id= ids;
       aux->pointer = NULL;
       mL_yellowList=aux;
     }
-    else
-    {
-      while(aux->pointer)
-      {
+    else {
+      while(aux->pointer) {
         aux=aux->pointer;
       }
       aux->pointer = new Sanimal();
@@ -56,20 +49,17 @@ void CField::setAnimal(uint16_t ids, int list)
       aux->pointer->pointer = NULL;
     }
   }
-  else if(list==REDZONE)
-  {
+
+  else if(list==REDZONE) {
     aux=mL_redList;
-    if(!aux)
-    {
+    if(!aux) {
       aux = new Sanimal();
       aux->id= ids;
       aux->pointer = NULL;
       mL_redList=aux;
     }
-    else
-    {
-      while(aux->pointer)
-      {
+    else {
+      while(aux->pointer) {
         aux=aux->pointer;
       }
       aux->pointer = new Sanimal();
@@ -78,52 +68,45 @@ void CField::setAnimal(uint16_t ids, int list)
     }
   }
 }
+
 uint16_t CField::getAnimal(int list)
 {
   Sanimal * aux;
-  int returnid=-1;
-  if(list==GREENZONE)
-  {
+  int returnid = 0;
+
+  if(list==GREENZONE) {
     aux=mL_greenList;
-    if(aux==NULL)
-    {
+    if(aux==NULL) {
       cout << "greenList empty" << endl;
-      return -1;
+      return 0;
     }
-    else
-    {
+    else {
       mL_greenList=aux->pointer;
       returnid=aux->id;
       delete aux;
       return returnid;
     }
   }
-  else if(list==YELLOWZONE)
-  {
+  else if(list==YELLOWZONE) {
     aux=mL_yellowList;
-    if(aux==NULL)
-    {
+    if(aux==NULL) {
       cout << "yellowList empty" << endl;
-      return -1;
+      return 0;
     }
-    else
-    {
+    else {
       mL_yellowList=aux->pointer;
       returnid=aux->id;
       delete aux;
       return returnid;
     }
   }
-  else if(list==REDZONE)
-  {
+  else if(list==REDZONE) {
     aux=mL_redList;
-    if(aux==NULL)
-    {
+    if(aux==NULL) {
       cout << "redList empty" << endl;
-      return -1;
+      return 0;
     }
-    else
-    {
+    else {
       mL_redList=aux->pointer;
       returnid=aux->id;
       delete aux;

@@ -35,6 +35,7 @@ CGps *p_gps;
 CAdc *p_adc;
 CAnimal *p_animal;
 CFieldMap *p_fieldMap;
+CLeds *p_leds;
 
 CThreadsAnimal::CThreadsAnimal()
 {
@@ -114,6 +115,7 @@ CThreadsAnimal::CThreadsAnimal()
   p_fieldMap = new CFieldMap();
   p_adc = new CAdc();
   p_gps = new CGps();
+  p_leds = new CLeds();
 
   p_animal->m_setAnimalTimeout(REDZONE);
   //p_gps->initGps();
@@ -286,7 +288,6 @@ void * CThreadsAnimal::pv_RFComSenderHandler(void *threadid)
       perror("CThreadsAnimal::pv_RFComSenderHandler In mq_open()");
       //exit(1);
     }
-
     msgsz = mq_receive(mq_rfReceiver, cCommand, MAX_MSG_LEN, &sender);
     if (msgsz == -1) {
       perror("CThreadsAnimal::pv_RFComSenderHandler In mq_receive()");
@@ -491,7 +492,6 @@ void * CThreadsAnimal::pv_RFComReceiverHandler(void *threadid)
 void * CThreadsAnimal :: pv_shockHandler(void *threadid)
 {
   int iAnimalZone;
-  CLeds leds;
 
   #if DEBUG
   cout << "thread pv_shockHandler" << endl;
@@ -511,7 +511,7 @@ void * CThreadsAnimal :: pv_shockHandler(void *threadid)
     pthread_mutex_unlock(mutex_animalZone);
     cout << "Animal Zone: " << iAnimalZone << endl;
     //Turn on the LED zone
-    leds.m_turnON_LedZone(iAnimalZone);
+    p_leds->m_turnON_LedZone(iAnimalZone);
 
   }
 }
@@ -519,13 +519,11 @@ void * CThreadsAnimal :: pv_shockHandler(void *threadid)
 void * CThreadsAnimal :: pv_batTempHandler(void *threadid)
 {
   float ftemperature, fbatteryLevel;
-  char msg_batTemp[20];
+  char msg_batTemp[MQBATTEMPLEN];
   char buffer[MAX_MSG_LEN];
   struct mq_attr attr;
   unsigned int sender;
   int msgsz;
-
-  CLeds leds;
 
   #if DEBUG
   cout << "thread pv_batTempHandler" << endl;
@@ -548,15 +546,15 @@ void * CThreadsAnimal :: pv_batTempHandler(void *threadid)
 
     memcpy(&msg_batTemp[0], &ftemperature, 4);
 
-    if(ftemperature < (TEMP_ANIMAL - 0.5)) { //Alert low temperature
-      cout << "Low temperature" << endl;
-    }
-    else if(ftemperature > (TEMP_ANIMAL + 0.5)) { //Alert high temperature
-      cout << "High temperature" << endl;
-    }
-    else {
-      cout << "Normal temperature" << endl;
-    }
+    // if(ftemperature < (TEMP_ANIMAL - 0.5)) { //Alert low temperature
+    //   cout << "Low temperature" << endl;
+    // }
+    // else if(ftemperature > (TEMP_ANIMAL + 0.5)) { //Alert high temperature
+    //   cout << "High temperature" << endl;
+    // }
+    // else {
+    //   cout << "Normal temperature" << endl;
+    // }
 
     //Read animal's battery level
     p_adc->readBatteryLevel();
@@ -565,12 +563,18 @@ void * CThreadsAnimal :: pv_batTempHandler(void *threadid)
 
     memcpy(&msg_batTemp[4], &fbatteryLevel, 4);
 
-    if(fbatteryLevel < 10.0) { //Low battery level
+    if(fbatteryLevel > 50.0) {
+      //Turn on Power LED
+      p_leds->m_BatteryLedStatus(true);
+    }
+    else if(fbatteryLevel < 10.0) { //Low battery level
       //Blink Power LED
       cout << "Low Battery Level" << endl;
+      p_leds->m_batteryWarning();
     }
     else { //Full battery
-      //Power LED on
+      //Power LED off
+      p_leds->m_BatteryLedStatus(false);
     }
 
     //Send info to mq_batTemp
@@ -598,7 +602,7 @@ void * CThreadsAnimal :: pv_batTempHandler(void *threadid)
     //
     // }
 
-    mq_batTemp = mq_send(mq_batTemp, msg_batTemp, 20, 1);
+    mq_batTemp = mq_send(mq_batTemp, msg_batTemp, MQBATTEMPLEN, 1);
     if (mq_batTemp == (mqd_t)-1) {
       perror("CThreadsAnimal::pv_batTempHandler In mq_send()");
       //exit(1);
@@ -626,7 +630,7 @@ void * CThreadsAnimal :: pv_processinInfoHandler(void *threadid)
   char cAnimalCoordinates[MAX_MSG_LEN];
   char cbatTempInfo[MAX_MSG_LEN];
   char buffer[MAX_MSG_LEN];
-  char cAnimalInfo[33];
+  char cAnimalInfo[MQRFCOMLEN];
   unsigned int sender;
   unsigned int msgqGPS_prio = 1;
   int msgsz;
@@ -647,10 +651,8 @@ void * CThreadsAnimal :: pv_processinInfoHandler(void *threadid)
     //cout << "Calculating Animal Zone" << endl;
     memset(cAnimalCoordinates, '\0', MAX_MSG_LEN);
     memset(cbatTempInfo, '\0', MAX_MSG_LEN);
-    memset(cAnimalInfo, '\0', 33);
+    memset(cAnimalInfo, '\0', MQRFCOMLEN);
 
-
-    // pthread_mutex_lock(mutex_queue_rf);
     //Open mq_GPS
     //mq_close(mq_GPS);
     mq_GPS = mq_open(MQGPS, O_RDWR); //Read coordinates
@@ -658,7 +660,6 @@ void * CThreadsAnimal :: pv_processinInfoHandler(void *threadid)
       perror("CThreadsAnimal::pv_processinInfoHandler In mq_open()");
       //exit(1);
     }
-
     msgsz = mq_receive(mq_GPS, cAnimalCoordinates, MAX_MSG_LEN, &sender);
     if (msgsz == -1) {
   	    perror("CThreadsAnimal::pv_processinInfoHandler In mq_receive()");
@@ -683,7 +684,7 @@ void * CThreadsAnimal :: pv_processinInfoHandler(void *threadid)
     pthread_mutex_unlock(mutex_animalZone);
 
     //GPS info
-    memcpy(&cAnimalInfo[12], &iAnimalZone, 1); //VERIFICAR
+    memcpy(&cAnimalInfo[13], &iAnimalZone, 1);
     memcpy(&cAnimalInfo[14], &latitude, 4);
     memcpy(&cAnimalInfo[18], &longitude, 4);
 
@@ -697,30 +698,27 @@ void * CThreadsAnimal :: pv_processinInfoHandler(void *threadid)
       perror("CThreadsAnimal::pv_processinInfoHandler In mq_receive()");
       //exit(1);
     }
-
     mq_close(mq_batTemp);
 
     //Temp and Bat info
-    memcpy(&cAnimalInfo[4], &cbatTempInfo[0], 1); // TEMPERATURE
-    memcpy(&cAnimalInfo[8], &cbatTempInfo[4], 4); // BATTERY
-    //memcpy(&cAnimalInfo[13], &cbatTempInfo[8], 1); // ALERTS
+    memcpy(&cAnimalInfo[5], &cbatTempInfo[0], 4); // TEMPERATURE
+    memcpy(&cAnimalInfo[9], &cbatTempInfo[4], 4); // BATTERY
 
     //Open mq_rfSender
     //mq_close(mq_rfSender);
-    // pthread_mutex_lock(mutex_queue_rf);
     mq_rfSender = mq_open(MQRFSENDER, O_RDWR); //Read coordinates
     if (mq_rfSender == (mqd_t)-1) {
       perror("CThreadsAnimal::pv_processinInfoHandler In mq_open()");
       //exit(1);
     }
     mq_getattr(mq_rfSender, &attr);
-    cout << "Before:" << endl;
-    printf("Maximum # of messages on queue: %ld\n", attr.mq_maxmsg);
-    printf("Maximum message size: %ld\n", attr.mq_msgsize);
-    printf("# of messages currently on queue: %ld\n", attr.mq_curmsgs);
+    // cout << "Before:" << endl;
+    // printf("Maximum # of messages on queue: %ld\n", attr.mq_maxmsg);
+    // printf("Maximum message size: %ld\n", attr.mq_msgsize);
+    // printf("# of messages currently on queue: %ld\n", attr.mq_curmsgs);
 
     while(attr.mq_curmsgs > 0) {
-      cout << "maior q um"  << endl;
+      // cout << "maior q um"  << endl;
       msgsz = mq_receive(mq_rfSender, buffer, MAX_MSG_LEN, &sender);
       if (msgsz == -1) {
         perror("CThreadsAnimal::pv_processinInfoHandler In mq_receive()");
@@ -735,13 +733,11 @@ void * CThreadsAnimal :: pv_processinInfoHandler(void *threadid)
       perror("CThreadsAnimal::pv_processinInfoHandler In mq_open()");
       //exit(1);
     }
-
-    mq_rfSender = mq_send(mq_rfSender, cAnimalInfo, 33, msgqGPS_prio);
+    mq_rfSender = mq_send(mq_rfSender, cAnimalInfo, MQRFCOMLEN, msgqGPS_prio);
     if (mq_rfSender == (mqd_t)-1) {
       perror("CThreadsAnimal::pv_processinInfoHandler In mq_send()");
       //exit(1);
     }
-    // pthread_mutex_unlock(mutex_queue_rf);
     mq_close(mq_rfSender);
 
     cout << "mq_send(mq_rfSender): ";
@@ -750,14 +746,14 @@ void * CThreadsAnimal :: pv_processinInfoHandler(void *threadid)
     }
     cout << endl;
 
-    mq_getattr(mq_rfSender, &attr);
+    // mq_getattr(mq_rfSender, &attr);
 
-    #if DEBUG
-    cout << "After:" << endl;
-    printf("Maximum # of messages on queue: %ld\n", attr.mq_maxmsg);
-    printf("Maximum message size: %ld\n", attr.mq_msgsize);
-    printf("# of messages currently on queue: %ld\n", attr.mq_curmsgs);
-    #endif
+    // #if DEBUG
+    // cout << "After:" << endl;
+    // printf("Maximum # of messages on queue: %ld\n", attr.mq_maxmsg);
+    // printf("Maximum message size: %ld\n", attr.mq_msgsize);
+    // printf("# of messages currently on queue: %ld\n", attr.mq_curmsgs);
+    // #endif
 
     pthread_mutex_lock(mutex_endProcessing);
     //Trigger ts_endProcessing
