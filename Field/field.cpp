@@ -148,7 +148,7 @@ uint16_t CField::getNextAnimal()
   }
 }
 
-void CField::setAnimalInfo(char* returnedMsg)
+void CField::setAnimalInfo(unsigned char* returnedMsg)
 {
   SanimalInfo* aux=NULL;
   aux=mL_wifiInfoList;
@@ -171,7 +171,7 @@ void CField::setAnimalInfo(char* returnedMsg)
   }
 }
 
-void CField::getAnimalInfo(char * msg)
+void CField::getAnimalInfo(unsigned char * msg)
 {
   SanimalInfo * aux;
   aux=mL_wifiInfoList;
