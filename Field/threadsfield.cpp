@@ -94,9 +94,8 @@ CThreadsField::CThreadsField()
   unsigned char addrR[4] = {0xFF, 0xFF, 0x00, 0x01};
 
   p_rf->RFComSetAddR(addrR);
-  pthread_mutex_lock(mutex_field);
   p_field->setAnimal(1,GREENZONE);
-  pthread_mutex_unlock(mutex_field);
+  p_tcpcom->TcpComOpen();
 
   run();
   pthread_mutex_lock(mutex_process);
@@ -195,7 +194,6 @@ void  * CThreadsField::pv_RFComReceiverHandler(void *threadid)
     { //Message Received
       trys=0;
       receved=false;
-      cout << (int)msgRfReceiver[13];
       if((int)msgRfReceiver[13]>0 && (int)msgRfReceiver[13]<5)
       {
         printf("%x ", msgRfReceiver[13] );
@@ -271,14 +269,19 @@ void  * CThreadsField::pv_WIFIComReceiverHandler(void *threadid)
 
 void *CThreadsField::pv_WIFIComSenderHandler(void *threadid)
 {
-  char buffer[32];
-  uint16_t idAnimal, idField;
-  char command;
-  float temperature, baterry;
-  int zone;
-  float latitude, longitude;
-
+  unsigned char buffer[32];
+  char poststring[300];
+  char post_send[600];
+  uint16_t idAnimal=0;
+  uint16_t idField=0;
+  char command=0;
+  float temperature=0;
+  float battery=0;
+  int zone=0;
+  float latitude=0;
+  float longitude=0;
   bool new_info=false;
+  char aux[1000];
 
   while (1)
   {
@@ -286,10 +289,22 @@ void *CThreadsField::pv_WIFIComSenderHandler(void *threadid)
     pthread_mutex_lock (mutex_wifi_list);
     p_field->getAnimalInfo(buffer);
     pthread_mutex_unlock (mutex_wifi_list);
+    cout << "wifi send" << endl;
+    snprintf(poststring,200,"animal_id=%d&zone_id=%d&field_id=%d&date=%s&temp=%f&latitude=%f&longitude=%f&bat=%f",idAnimal,zone,idField,"15",temperature,latitude);
+    cout << "poststring: "<< poststring << "tamanho: "<<strlen(post_send) <<endl << endl;
+    snprintf(post_send,300,
+      "POST /Airfences/give_data.php HTTP/1.1\r\n"
+      "Host: localhost\r\n"
+      "Content-Type: text/html\r\n"
+      "Content-Length: %d\r\n\r\n"
+      "%s",strlen(post_send),poststring);
+    cout << "enviar:" << post_send << endl << endl;
+    p_tcpcom->TcpComTransmite(post_send,strlen(post_send));
 
-    cout << buffer << endl;
+    p_tcpcom->TcpComReceive(aux,1000);
+    aux[999]= '\0';
+    cout << "recebido: "<< aux<< endl;
 
-    cout << "buffer" << endl;
     if(new_info)
     {
       pthread_mutex_lock(mutex_readInfoTcp);
@@ -339,10 +354,8 @@ void *CThreadsField::pv_processAnimalInfoHandler(void *threadid)
     else {
       mq_close(mq_wifiReceiver);
 
-      //process next animal resquest
-      //get id and zone
       pthread_mutex_lock(mutex_field);
-      id=p_field->getAnimal(GREENZONE);
+      id=p_field->getNextAnimal();
       pthread_mutex_unlock(mutex_field);
 
       pthread_mutex_lock(mutex_RF);
@@ -354,6 +367,7 @@ void *CThreadsField::pv_processAnimalInfoHandler(void *threadid)
       msgRfSender[6]=1;
       msgRfSender[7]=1;
 
+      //type
       pthread_mutex_unlock(mutex_RF);
     }
     pthread_mutex_lock(mutex_sendInfoRF);
@@ -368,5 +382,5 @@ void  CThreadsField::run()
   pthread_detach(t_RFComReceiver);
   pthread_detach(t_RFComSender);
   //pthread_detach(t_WIFIComReceiver);
-  //pthread_detach(t_WIFIComSender);
+  pthread_detach(t_WIFIComSender);
 }
