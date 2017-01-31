@@ -18,6 +18,8 @@ class CRFCom
 		CRFCom();
 		~CRFCom();
 
+		void RFComReset();
+
 		void RFComSetAddR(unsigned char *RxAddress);
 		void RFComSender(unsigned char *TxAddress, unsigned char* Payload);
 		void RFComPrintConf();

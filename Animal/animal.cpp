@@ -22,6 +22,11 @@ CAnimal :: ~CAnimal()
 
 }
 
+uint16_t CAnimal :: mui_getAnimalID()
+{
+  return mui_idAnimal;
+}
+
 void CAnimal :: m_setAnimalTimeout(int zone)
 {
   switch(zone)

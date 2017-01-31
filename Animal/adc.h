@@ -1,11 +1,6 @@
 #include "defines.h"
 
-#include <iomanip>      // std::setprecision
-
-#define MAX_TMP36_OUTPUT 2.0
-#define MIN_TMP36_OUTPUT 0.1
-
-
+#define MAX_BAT_LEVEL    2.0
 
 using namespace std;
 

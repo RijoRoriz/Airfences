@@ -7,7 +7,7 @@
 #include <errno.h>
 #include <sys/time.h>
 #include <signal.h>
-#include <iomanip>
+#include <iomanip> // std::setprecision
 #include <iostream>
 #include <fstream>
 

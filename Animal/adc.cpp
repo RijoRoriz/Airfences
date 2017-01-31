@@ -11,13 +11,11 @@ CAdc :: CAdc()
 
 	mui_adcHandler = wiringPiI2CSetup(mui_i2cAddress);
 
-	if(mui_adcHandler < 0)
-	{
-		cout << "Can't find i2c" << endl;
+	if(mui_adcHandler < 0) {
+		perror("CAdc::CAdc() In wiringPiI2CSetup");
 	}
 
 	mui_bitShift = 4;
-
 }
 
 CAdc :: ~CAdc()
@@ -102,27 +100,16 @@ int16_t CAdc :: swap(int16_t value)
 
 void CAdc :: readTemperature()
 {
-	int read;
-
-	read = readADC_SingleEnded(0);
-	//cout << "Read3: " << read << endl;
+	int read = readADC_SingleEnded(0);
 
 	mf_tmp36voltage = read * mcf_vps4;
 
-	// if(mf_tmp36voltage < MIN_TMP36_OUTPUT || mf_tmp36voltage > MAX_TMP36_OUTPUT)
-	// {
-	// 	cout << "Reading again temperature..." << endl;
-	// 	//readTemperature();
-	// }
-	// else
-	// {
-		//Temp °C = 100*(reading in V) - 50
-		mf_temperature = 100 * mf_tmp36voltage - 50;
+	//Temp °C = 100*(reading in V) - 50
+	mf_temperature = 100 * mf_tmp36voltage - 50;
 
-		// cout << fixed;
-		cout << "Voltage TMP36:     " << setprecision(3) << mf_tmp36voltage << endl;
-		// cout << "Temperature: " << setprecision(3) << mf_temperature  << endl;
-	// }
+	// cout << fixed;
+	// cout << "Voltage TMP36:     " << setprecision(3) << mf_tmp36voltage << endl;
+	// cout << "Temperature: " << setprecision(3) << mf_temperature  << endl;
 }
 
 float CAdc :: getTemperature()
@@ -137,12 +124,13 @@ float CAdc :: getTMP36Voltage()
 
 void CAdc :: readBatteryLevel()
 {
-	int read;
-
-	read = readADC_SingleEnded(1);
+	int read = readADC_SingleEnded(1);
 
 	mf_batteryLevel = read * mcf_vps4;
-	cout << fixed;
+
+	//Convert to percentage
+	mf_batteryLevel = (mf_batteryLevel * 100) / MAX_BAT_LEVEL;
+	// cout << fixed;
 	//cout << "Voltage: " << setprecision(3) << mf_batteryLevel << endl;
 }
 
@@ -150,18 +138,3 @@ float CAdc :: getBatteryLevel()
 {
 	return mf_batteryLevel;
 }
-
-// int main()
-// {
-//
-// 	CAdc adc;
-//
-// 	cout << "TMP 36" << endl;
-// 	adc.readTemperature();
-//
-//    cout << "Battery Level" << endl;
-//    adc.readBatteryLevel();
-// //		delay(3000);
-//
-// 	return 1;
-// }

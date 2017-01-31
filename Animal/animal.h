@@ -31,6 +31,8 @@ class CAnimal
 		CAnimal();
 		~CAnimal();
 
+		uint16_t mui_getAnimalID();
+
 		void m_setAnimalTimeout(int zone);
 		int mi_getAnimalTimeout();
 

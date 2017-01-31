@@ -132,6 +132,13 @@ void CRFCom :: setRx()
    }
 }
 
+void CRFCom::RFComReset()
+{
+	digitalWrite(PWR_RF, LOW);// nRF905 power off
+	delay(3);
+	digitalWrite(PWR_RF, HIGH);// nRF905 power on
+}
+
 void CRFCom::RFComSender(unsigned char *TxAddress, unsigned char *Payload)
 {
 		/***** prepare data to send *****/
