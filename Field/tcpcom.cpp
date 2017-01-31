@@ -6,7 +6,7 @@ CTcpCom::CTcpCom()
 {
 	//memset(&addr, 0, sizeof(addr));
 	host = gethostbyname("10.42.0.1"); /* select IP adress */
-	port = htons(5000);
+	port = htons(80);
 	addr.sin_family = AF_INET; /* select internet protocol */
 	addr.sin_port = port;
 	addr.sin_addr.s_addr = * (long*)(host->h_addr_list[0]); /* set the addr */
@@ -48,19 +48,19 @@ bool CTcpCom::TcpComClose()
 	m_bconnected=false;
 }
 
-int CTcpCom::TcpComReceive(char * returned, int TCPCOMLENGTH)
+int CTcpCom::TcpComReceive(char * returned, int length)
 {
 	if(m_bconnected){
-	recv(sd,returned,TCPCOMLENGTH,0);
+	recv(sd,returned,length,0);
 	return 0;
 	}
 	else return -1;
 }
 
-int CTcpCom::TcpComTransmite(char * info, int TCPCOMLENGTH)
+int CTcpCom::TcpComTransmite(char * info, int length)
 {
 	if(m_bconnected){
-	send(sd,info,TCPCOMLENGTH,0);
+	send(sd,info,length,0);
 	return 0;
 	}
 	else return -1;
