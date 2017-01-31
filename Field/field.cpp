@@ -56,8 +56,7 @@ void CField::setAnimal(uint16_t ids, int list)
       aux->pointer->pointer = NULL;
     }
   }
-  else if(list==REDZONE)
-  {
+  else if(list==REDZONE || list==OUTZONE) {
     aux=mL_redList;
     if(!aux)
     {

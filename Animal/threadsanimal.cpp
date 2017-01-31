@@ -118,7 +118,7 @@ CThreadsAnimal::CThreadsAnimal()
   p_leds = new CLeds();
 
   p_animal->m_setAnimalTimeout(REDZONE);
-  //p_gps->initGps();
+  // p_gps->initGps();
   p_fieldMap->m_configureMap(p_animal->mssq_getAnimalFenceLimits());
 
   /***** THREADS *****/
@@ -346,7 +346,7 @@ void * CThreadsAnimal::pv_RFComSenderHandler(void *threadid)
         memcpy(&requestedInfo[9], &cAnimalInfo[8],4);
       }
       if(cCommand[7] == 1) { //Request GPS
-        memcpy(&requestedInfo[13], &cAnimalInfo[12], 1);
+        memcpy(&requestedInfo[13], &cAnimalInfo[13], 1);
         memcpy(&requestedInfo[15], &cAnimalInfo[14], 4);
         memcpy(&requestedInfo[19], &cAnimalInfo[18], 4);
       }
@@ -789,17 +789,19 @@ void * CThreadsAnimal :: pv_gpsHandler(void *threadid)
     //   if(p_gps->gpsDataStatus()) // Send it to mq_GPS
     //   {
     //     cout << "GPS: Data Valid!" << endl;
-         memset(gpsCoordinates, '\0', MQGPSLEN);    // Initialize the string
-    //     sprintf(gpsCoordinates, "%f;%f", p_gps->getLatitude(), p_gps->getLongitude());
+        memset(gpsCoordinates, '\0', MQGPSLEN);    // Initialize the string
+        // sprintf(gpsCoordinates, "%f;%f", p_gps->getLatitude(), p_gps->getLongitude());
     //
-    //     for(int i=0; i<strlen(gpsCoordinates)+1; i++)
-    //     {
-    //       printf("%c", gpsCoordinates[i]);
-    //     }
-    //     cout << endl;
-
+    //     cout << "gpsCoordinates: " << gpsCoordinates << endl;
+    //
+    //     // for(int i=0; i<strlen(gpsCoordinates)+1; i++)
+    //     // {
+    //     //   printf("%c", gpsCoordinates[i]);
+    //     // }
+    //     // cout << endl;
+    //
         strcpy(gpsCoordinates, "41.501823;-8.348397");
-        mq_close(mq_GPS);
+    //     // mq_close(mq_GPS);
         mq_GPS = mq_open(MQGPS, O_RDWR); //Send coordinates
         if (mq_GPS == (mqd_t)-1) {
           perror("CThreadsAnimal::pv_gpsHandler In mq_open()");
@@ -811,27 +813,27 @@ void * CThreadsAnimal :: pv_gpsHandler(void *threadid)
           //exit(1);
         }
 
-        // mq_getattr(mq_GPS, &attr);
-        // cout << "thread pv_processinInfoHandler" << endl;
-        // printf("Maximum # of messages on queue: %ld\n", attr.mq_maxmsg);
-        // printf("Maximum message size: %ld\n", attr.mq_msgsize);
-        // printf("# of messages currently on queue: %ld\n", attr.mq_curmsgs);
-
+    //     // mq_getattr(mq_GPS, &attr);
+    //     // cout << "thread pv_processinInfoHandler" << endl;
+    //     // printf("Maximum # of messages on queue: %ld\n", attr.mq_maxmsg);
+    //     // printf("Maximum message size: %ld\n", attr.mq_msgsize);
+    //     // printf("# of messages currently on queue: %ld\n", attr.mq_curmsgs);
+    //
         mq_close(mq_GPS);
-
+    //
         pthread_mutex_lock(mutex_GPSReady);
         //Trigger ts_GPSReady
         cout << "Trigger ts_GPSReady"<< endl;
         pthread_cond_signal(ts_GPSReady);
         pthread_mutex_unlock(mutex_GPSReady);
-      //
-      // }
-      // else
-      // {
-      //   cout << "GPS: Data not Valid! Read again..." << endl;
-      // }
-
-    //}
+    //
+    //   }
+    //   else
+    //   {
+    //     cout << "GPS: Data not Valid! Read again..." << endl;
+    //   }
+    //
+    // }
 
   }
 
