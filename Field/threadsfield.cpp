@@ -156,10 +156,11 @@ void * CThreadsField::pv_RFComSenderHandler(void *threadid)
 void  * CThreadsField::pv_RFComReceiverHandler(void *threadid)
 {
   unsigned char msgRfReceiver[32];
-  char msgWifiSender[32];
-  int trys=0;
-  bool receved=false;
-  uint16_t id_animal=0;
+  int trys = 0;
+  bool received = false;
+  bool commandMatch = false;
+  uint16_t id_animal = 0;
+
   while (1)
   {
     pthread_mutex_lock(mutex_readInfoRF);
@@ -167,72 +168,77 @@ void  * CThreadsField::pv_RFComReceiverHandler(void *threadid)
     pthread_mutex_unlock(mutex_readInfoRF);
 
     memset(msgRfReceiver, '\0', 32);
-    memset(msgWifiSender, '\0', 32);
 
     pthread_mutex_lock(mutex_RF);
-    receved=p_rf->RFComReceiver(msgRfReceiver);
+    received=p_rf->RFComReceiver(msgRfReceiver);
     pthread_mutex_unlock(mutex_RF);
-    if(!receved) //Message not received
-    {
-      if(trys<3)
-      {
+
+    if(!received) { //Message not received
+      if(trys < 3) {
         trys++;
         cout << "timeout"<< endl;
+
         pthread_mutex_lock(mutex_sendInfoRF);
         pthread_cond_signal(ts_sendInfoRF);
         pthread_mutex_unlock(mutex_sendInfoRF);
       }
-      else
-      {
+      else {
         cout << "not found"<< endl;
-        trys=0;
-
+        trys = 0;
       }
-
     }
-    else
-    { //Message Received
-      trys=0;
-      receved=false;
-      if((int)msgRfReceiver[13]>0 && (int)msgRfReceiver[13]<5)
-      {
-        printf("%x ", msgRfReceiver[13] );
+    else { //Message Received
+      trys = 0;
+      received = false;
 
-        cout << "entrou" << endl;
+      switch (msgRfReceiver[4]) { //Command Type
+        case 'R': //Reset
+        case 'C': //New conf
+        case 'N': //First conf
+        //Compare command sent with message received
+        if(!memcmp(&msgRfReceiver[0], &msgRfSender[0], 32)) //Are the same
+          commandMatch = true;
+        else
+          commandMatch = false;
+        break;
 
-        //Falta comparar strings
+        case 'I':
+        if(!memcmp(&msgRfReceiver[0], &msgRfSender[0], 5)) //Are the same
+        commandMatch = true;
+        else
+        commandMatch = false;
 
-        //Information requested (Command 'I')
+        cout << (int)msgRfReceiver[13];
+        if((int)msgRfReceiver[13]>0 && (int)msgRfReceiver[13]<5) //AnimalZone
+        {
+          printf("%x ", msgRfReceiver[13] );
 
-        memcpy(&id_animal,&msgRfReceiver[2], 2);
-        if((int)msgRfReceiver[13]==4) {
+          cout << "entrou" << endl;
+
+          memcpy(&id_animal,&msgRfReceiver[2], 2);
+
           pthread_mutex_lock(mutex_field);
-          p_field->setAnimal(id_animal,REDZONE);
+          p_field->setAnimal(id_animal,(int)msgRfReceiver[13]); //ID, ZONE
           pthread_mutex_unlock(mutex_field);
+
+          pthread_mutex_lock(mutex_wifi_list);
+          p_field->setAnimalInfo(msgRfReceiver);
+          pthread_mutex_unlock(mutex_wifi_list);
+
+          sem_post(tsem_sendInfoWifi);
         }
         else {
-          pthread_mutex_lock(mutex_field);
-          p_field->setAnimal(id_animal,(int)msgRfReceiver[13]);
-          pthread_mutex_unlock(mutex_field);
+          cout << "CThreadsField::pv_RFComReceiverHandler ERROR!" << endl;
         }
-
-
-        pthread_mutex_lock(mutex_wifi_list);
-        p_field->setAnimalInfo(msgRfReceiver);
-        pthread_mutex_unlock(mutex_wifi_list);
-
-        sem_post(tsem_sendInfoWifi);
+        break;
       }
-      else
-      {
-        cout << "erro"<< endl;
-      }
-
     }
-    delay(6000);
-    pthread_mutex_lock(mutex_process);
-    pthread_cond_signal(ts_process);
-    pthread_mutex_unlock(mutex_process);
+    if((trys == 0) && commandMatch) {
+      delay(5000);
+      pthread_mutex_lock(mutex_process);
+      pthread_cond_signal(ts_process);
+      pthread_mutex_unlock(mutex_process);
+    }
   }
 }
 
