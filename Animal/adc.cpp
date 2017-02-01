@@ -127,12 +127,12 @@ void CAdc :: readBatteryLevel()
 	int read = readADC_SingleEnded(1);
 
 	mf_batteryLevel = read * mcf_vps4;
-	cout << fixed;
+	// cout << fixed;
 	cout << "Voltage: " << setprecision(3) << mf_batteryLevel << endl;
 
-	//Convert to percentage
-	mf_batteryLevel = (mf_batteryLevel * 100) / MAX_BAT_LEVEL;
+	// mf_batteryLevel = ((abss(3.20 - mf_batteryLevel) / 0.43) * 100);
 
+	// cout << "Percentage: " << mf_batteryLevel << endl;
 }
 
 float CAdc :: getBatteryLevel()

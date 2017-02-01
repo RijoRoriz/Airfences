@@ -566,11 +566,16 @@ void * CThreadsAnimal :: pv_batTempHandler(void *threadid)
     if(fbatteryLevel > 50.0) {
       //Turn on Power LED
       p_leds->m_BatteryLedStatus(true);
+      // system("shutdown -H now");
+      // execl("/sbin/poweroff", "poweroff", NULL);
     }
-    else if(fbatteryLevel < 10.0) { //Low battery level
+    else if(fbatteryLevel < 25.0) { //Low battery level
       //Blink Power LED
       cout << "Low Battery Level" << endl;
       p_leds->m_batteryWarning();
+    }
+    else if(fbatteryLevel < 10.0) {
+      system("shutdown -P now");
     }
     else { //Full battery
       //Power LED off

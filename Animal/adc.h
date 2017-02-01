@@ -1,6 +1,7 @@
 #include "defines.h"
 
 #define MAX_BAT_LEVEL    3.17
+#define MAX_DIF_VOLTAGE  0.43
 
 using namespace std;
 
