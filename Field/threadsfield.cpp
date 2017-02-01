@@ -25,8 +25,9 @@ mqd_t mq_wifiReceiver;
 /***** Objects *****/
 CRFCom *p_rf;
 CField *p_field;
-CTcpCom *p_tcpcom;
 SanimalRegist *animalRegists;
+CTcpCom *p_tcpcom;
+
 
 unsigned char msgRfSender[32];
 
@@ -75,16 +76,14 @@ CThreadsField::CThreadsField()
   /***** OBJECT *****/
   p_field = new CField();
   p_rf = new CRFCom();
-  p_tcpcom = new CTcpCom();
-  p_tcpcom->TcpComOpen();
   animalRegists=NULL;
 
   /***** THREADS *****/
   pthread_attr_t thread_attr=setAttr(60); //
   int rfS_status = pthread_create(&t_RFComSender,&thread_attr,pv_RFComSenderHandler,(void*)p_rf);
   int rfR_status = pthread_create(&t_RFComReceiver, &thread_attr,pv_RFComReceiverHandler, (void*)p_rf);
-  int tcpS_status = pthread_create(&t_WIFIComSender,&thread_attr,pv_WIFIComSenderHandler,(void*)p_tcpcom);
-  int tcpR_status = pthread_create(&t_WIFIComReceiver, &thread_attr,pv_WIFIComReceiverHandler, (void*)p_tcpcom);
+  int tcpS_status = pthread_create(&t_WIFIComSender,&thread_attr,pv_WIFIComSenderHandler,NULL);
+  int tcpR_status = pthread_create(&t_WIFIComReceiver, &thread_attr,pv_WIFIComReceiverHandler, NULL);
   int process_status = pthread_create(&t_processAnimalInfo, &thread_attr,pv_processAnimalInfoHandler, (void*)p_field);
 
   if(rfS_status || rfR_status || tcpS_status || tcpR_status) {
@@ -213,20 +212,18 @@ void  * CThreadsField::pv_RFComReceiverHandler(void *threadid)
         if((int)msgRfReceiver[13]>0 && (int)msgRfReceiver[13]<5) //AnimalZone
         {
 
-          cout <<" zona: " << (int)msgRfReceiver[13] << endl;
-          cout << "entrou" << endl;
-
           memcpy(&id_animal,&msgRfReceiver[2], 2);
 
           pthread_mutex_lock(mutex_field);
+          cout << "*****  set animal ******" << (int)msgRfReceiver[13] << endl;
           p_field->setAnimal(id_animal,(int)msgRfReceiver[13]); //ID, ZONE
           pthread_mutex_unlock(mutex_field);
 
-          pthread_mutex_lock(mutex_wifi_list);
-          //p_field->setAnimalInfo(msgRfReceiver);
-          pthread_mutex_unlock(mutex_wifi_list);
-
-          sem_post(tsem_sendInfoWifi);
+          // pthread_mutex_lock(mutex_wifi_list);
+          // //p_field->setAnimalInfo(msgRfReceiver);
+          // pthread_mutex_unlock(mutex_wifi_list);
+          //
+          // //sem_post(tsem_sendInfoWifi);
         }
         else {
           cout << "CThreadsField::pv_RFComReceiverHandler ERROR!" << endl;
@@ -274,16 +271,16 @@ void  * CThreadsField::pv_WIFIComReceiverHandler(void *threadid)
     }
     mq_close(mq_wifiReceiver);
 
-    pthread_mutex_lock(mutex_field);
-    idAnimal = p_field->getNextAnimal();
-    pthread_mutex_unlock(mutex_field);
+    // pthread_mutex_lock(mutex_field);
+    // idAnimal = p_field->getNextAnimal();
+    // pthread_mutex_unlock(mutex_field);
 
-    if(!idAnimal) { //No animals in the list
-      cout << "WIFI_RECEIVER NO ANIMALS IN THE LIST" << endl;
-      pthread_mutex_lock(mutex_process);
-      pthread_cond_signal(ts_process);
-      pthread_mutex_unlock(mutex_process);
-    }
+    // if(!idAnimal) { //No animals in the list
+    //   cout << "WIFI_RECEIVER NO ANIMALS IN THE LIST" << endl;
+    //   pthread_mutex_lock(mutex_process);
+    //   pthread_cond_signal(ts_process);
+    //   pthread_mutex_unlock(mutex_process);
+    // }
   }
 }
 
@@ -301,35 +298,34 @@ void *CThreadsField::pv_WIFIComSenderHandler(void *threadid)
   float latitude=0;
   float longitude=0;
   bool new_info=false;
-  char aux[300];
-  int contagem=0;
+  char aux[400];
   while (1)
   {
     sem_wait (tsem_sendInfoWifi);
     pthread_mutex_lock (mutex_wifi_list);
     //p_field->getAnimalInfo(buffer);
     pthread_mutex_unlock (mutex_wifi_list);
-    memset(poststring,'\0',300);
-    memset(post_send,'\0',600);
-    memset(aux,'\0',600);
-
-    cout << endl << "contagem::"<< contagem++<< endl;
-    // cout << "wifi send" << endl;
+    p_tcpcom = new CTcpCom();
+    memset(poststring,'\0',150);
+    memset(post_send,'\0',400);
+    memset(aux,'\0',400);
+    p_tcpcom->TcpComOpen();
      snprintf(poststring,300,"animal_id=%d&zone_id=%d&field_id=%d&date=%s&temp=%f&latitude=%f&longitude=%f&bat=%f",idAnimal,zone,idField,"15",temperature,latitude, battery);
     //snprintf(poststring,300,"animal_id=1&zone_id=1&field_id=2&date=1&temp=1&latitude=1&longitude=1&bat=1");
     // cout << "poststring: "<< poststring << "tamanho: "<<strlen(poststring) <<endl << endl;
-     snprintf(post_send,600,
+     snprintf(post_send,400,
        "POST /Airfences/give_data.php HTTP/1.1\r\n"
        "Host: localhost\r\n"
        "Content-Type: application/x-www-form-urlencoded\r\n"
       "Content-Length: %d\r\n\r\n"
-      "%s",strlen(poststring),poststring);
+      "%s\r\n",strlen(poststring),poststring);
     cout << "enviar:" << post_send << endl << endl;
-    //p_tcpcom->TcpComOpen();
     p_tcpcom->TcpComTransmite(post_send,strlen(post_send));
-    p_tcpcom->TcpComReceive(aux,600);
+    p_tcpcom->TcpComReceive(aux,400);
     //aux[499]='\0';
     cout << "recebido: "<< aux << endl;
+    p_tcpcom->TcpComClose();
+    delete(p_tcpcom);
     //
     // if(new_info)
     // {
@@ -367,7 +363,8 @@ void *CThreadsField::pv_processAnimalInfoHandler(void *threadid)
     mq_getattr(mq_wifiReceiver, &attr);
 
     //Have a commmand to send by RF ('N' or 'C')
-    if(attr.mq_curmsgs > 0) {
+    //if(attr.mq_curmsgs > 0) {
+    if(0){
       cout << "MQUEUE WIFI_RECEIVER IS NOT EMPTY" << endl;
       int msgsz = mq_receive(mq_wifiReceiver, newInfoDatabase, MAX_MSG_LEN, &sender);
       if (msgsz == -1) {
@@ -406,7 +403,7 @@ void *CThreadsField::pv_processAnimalInfoHandler(void *threadid)
     else { //If have an animal
       cout << "SELECT AN ANIMAL" << endl;
       pthread_mutex_lock(mutex_RF);
-      memset(msgRfSender, '\0', 32);
+      // memset(msgRfSender, '\0', 32);
 
       memcpy(&msgRfSender[0], &idField, 2);
       memcpy(&msgRfSender[2], &idAnimal, 2);
