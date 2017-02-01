@@ -95,8 +95,7 @@ CThreadsField::CThreadsField()
 
   p_rf->RFComSetAddR(addrR);
   p_field->setAnimal(1,GREENZONE);
-  p_tcpcom->TcpComOpen();
-
+  //p_tcpcom->TcpComOpen();
   run();
   pthread_mutex_lock(mutex_process);
   pthread_cond_signal(ts_process);
@@ -211,8 +210,8 @@ void  * CThreadsField::pv_RFComReceiverHandler(void *threadid)
         cout << (int)msgRfReceiver[13];
         if((int)msgRfReceiver[13]>0 && (int)msgRfReceiver[13]<5) //AnimalZone
         {
-          printf("%x ", msgRfReceiver[13] );
 
+          cout <<" zona: " << (int)msgRfReceiver[13] << endl;
           cout << "entrou" << endl;
 
           memcpy(&id_animal,&msgRfReceiver[2], 2);
@@ -281,13 +280,13 @@ void *CThreadsField::pv_WIFIComSenderHandler(void *threadid)
   uint16_t idAnimal=0;
   uint16_t idField=0;
   char command=0;
-  float temperature=0;
+  float temperature=12.5;
   float battery=0;
   int zone=0;
   float latitude=0;
   float longitude=0;
   bool new_info=false;
-  char aux[1000];
+  char aux[600];
 
   while (1)
   {
@@ -295,28 +294,33 @@ void *CThreadsField::pv_WIFIComSenderHandler(void *threadid)
     pthread_mutex_lock (mutex_wifi_list);
     p_field->getAnimalInfo(buffer);
     pthread_mutex_unlock (mutex_wifi_list);
-    cout << "wifi send" << endl;
-    snprintf(poststring,200,"animal_id=%d&zone_id=%d&field_id=%d&date=%s&temp=%f&latitude=%f&longitude=%f&bat=%f",idAnimal,zone,idField,"15",temperature,latitude);
-    cout << "poststring: "<< poststring << "tamanho: "<<strlen(poststring) <<endl << endl;
-    snprintf(post_send,300,
-      "POST /Airfences/give_data.php HTTP/1.1\r\n"
-      "Host: localhost\r\n"
-      "Content-Type: text/html\r\n"
+    memset(poststring,'\0',300);
+    memset(post_send,'\0',600);
+    memset(aux,'\0',600);
+
+    // cout << "wifi send" << endl;
+    //  snprintf(poststring,300,"animal_id=%d&zone_id=%d&field_id=%d&date=%s&temp=%f&latitude=%f&longitude=%f&bat=%f",idAnimal,zone,idField,"15",temperature,latitude, battery);
+    snprintf(poststring,300,"animal_id=1&zone_id=1&field_id=2&date=1&temp=1&latitude=1&longitude=1&bat=1");
+    // cout << "poststring: "<< poststring << "tamanho: "<<strlen(poststring) <<endl << endl;
+     snprintf(post_send,600,
+       "POST /Airfences/give_data.php HTTP/1.1\r\n"
+       "Host: localhost\r\n"
+       "Content-Type: text/html\r\n"
       "Content-Length: %d\r\n\r\n"
       "%s",strlen(poststring),poststring);
     cout << "enviar:" << post_send << endl << endl;
+    p_tcpcom->TcpComOpen();
     p_tcpcom->TcpComTransmite(post_send,strlen(post_send));
-
-    p_tcpcom->TcpComReceive(aux,1000);
-    aux[999]= '\0';
-    cout << "recebido: "<< aux<< endl;
-
-    if(new_info)
-    {
-      pthread_mutex_lock(mutex_readInfoTcp);
-      pthread_cond_signal(ts_readInfoWifi);
-      pthread_mutex_unlock(mutex_readInfoTcp);
-    }
+    p_tcpcom->TcpComReceive(aux,600);
+    //aux[499]='\0';
+    cout << "recebido: "<< aux << endl;
+    //
+    // if(new_info)
+    // {
+    //   pthread_mutex_lock(mutex_readInfoTcp);
+    //   pthread_cond_signal(ts_readInfoWifi);
+    //   pthread_mutex_unlock(mutex_readInfoTcp);
+    // }
 
   }
 }

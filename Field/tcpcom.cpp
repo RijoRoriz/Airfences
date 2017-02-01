@@ -10,7 +10,7 @@ CTcpCom::CTcpCom()
 	addr.sin_family = AF_INET; /* select internet protocol */
 	addr.sin_port = port;
 	addr.sin_addr.s_addr = * (long*)(host->h_addr_list[0]); /* set the addr */
-	sd = socket(PF_INET,SOCK_STREAM,0);
+	sd = socket(AF_INET,SOCK_STREAM,0);
 	if(sd<0) {
 	perror("socket not created");
 	}
@@ -24,20 +24,20 @@ void CTcpCom::TcpComPrintInfo()
 
 CTcpCom::~CTcpCom()
 {
-	if(m_bconnected==false) TcpComClose();
+	TcpComClose();
 }
 
 bool CTcpCom::TcpComOpen()
 {
 	int valor=0;
-	if(connect(sd,(const sockaddr*)&addr,sizeof(addr))==0) {
+	if(connect(sd,(const sockaddr*)&addr,sizeof(addr))>-1) {
 	m_bconnected=true;
 	return true;
 	}
 	else
 	{
 	 cout << valor <<"socket error";
-	 m_bconnected=true;
+	 m_bconnected=false;
 	 return false;
 	}
 }
@@ -51,8 +51,7 @@ bool CTcpCom::TcpComClose()
 int CTcpCom::TcpComReceive(char * returned, int length)
 {
 	if(m_bconnected){
-	recv(sd,returned,length,0);
-	return 0;
+	return read(sd,returned,length);
 	}
 	else return -1;
 }
@@ -60,8 +59,7 @@ int CTcpCom::TcpComReceive(char * returned, int length)
 int CTcpCom::TcpComTransmite(char * info, int length)
 {
 	if(m_bconnected){
-	send(sd,info,length,0);
-	return 0;
+	return write(sd,info,length);
 	}
 	else return -1;
 }

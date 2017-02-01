@@ -7,6 +7,8 @@
 #include <netdb.h>
 #include <stdio.h>
 #include <iostream>
+#include "defines.h"
+#include <unistd.h> 
 
 class CTcpCom
 {
