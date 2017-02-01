@@ -75,6 +75,7 @@ CThreadsField::CThreadsField()
   p_field = new CField();
   p_rf = new CRFCom();
   p_tcpcom = new CTcpCom();
+  p_tcpcom->TcpComOpen();
   animalRegists=NULL;
 
   /***** THREADS *****/
@@ -155,11 +156,10 @@ void * CThreadsField::pv_RFComSenderHandler(void *threadid)
 void  * CThreadsField::pv_RFComReceiverHandler(void *threadid)
 {
   unsigned char msgRfReceiver[32];
-  int trys = 0;
   bool received = false;
   bool commandMatch = false;
   uint16_t id_animal = 0;
-
+  int trys = 0;
   while (1)
   {
     pthread_mutex_lock(mutex_readInfoRF);
@@ -221,7 +221,7 @@ void  * CThreadsField::pv_RFComReceiverHandler(void *threadid)
           pthread_mutex_unlock(mutex_field);
 
           pthread_mutex_lock(mutex_wifi_list);
-          p_field->setAnimalInfo(msgRfReceiver);
+          //p_field->setAnimalInfo(msgRfReceiver);
           pthread_mutex_unlock(mutex_wifi_list);
 
           sem_post(tsem_sendInfoWifi);
@@ -275,8 +275,8 @@ void  * CThreadsField::pv_WIFIComReceiverHandler(void *threadid)
 void *CThreadsField::pv_WIFIComSenderHandler(void *threadid)
 {
   unsigned char buffer[32];
-  char poststring[300];
-  char post_send[600];
+  char poststring[150];
+  char post_send[400];
   uint16_t idAnimal=0;
   uint16_t idField=0;
   char command=0;
@@ -286,30 +286,31 @@ void *CThreadsField::pv_WIFIComSenderHandler(void *threadid)
   float latitude=0;
   float longitude=0;
   bool new_info=false;
-  char aux[600];
-
+  char aux[300];
+  int contagem=0;
   while (1)
   {
     sem_wait (tsem_sendInfoWifi);
     pthread_mutex_lock (mutex_wifi_list);
-    p_field->getAnimalInfo(buffer);
+    //p_field->getAnimalInfo(buffer);
     pthread_mutex_unlock (mutex_wifi_list);
     memset(poststring,'\0',300);
     memset(post_send,'\0',600);
     memset(aux,'\0',600);
 
+    cout << endl << "contagem::"<< contagem++<< endl;
     // cout << "wifi send" << endl;
-    //  snprintf(poststring,300,"animal_id=%d&zone_id=%d&field_id=%d&date=%s&temp=%f&latitude=%f&longitude=%f&bat=%f",idAnimal,zone,idField,"15",temperature,latitude, battery);
-    snprintf(poststring,300,"animal_id=1&zone_id=1&field_id=2&date=1&temp=1&latitude=1&longitude=1&bat=1");
+     snprintf(poststring,300,"animal_id=%d&zone_id=%d&field_id=%d&date=%s&temp=%f&latitude=%f&longitude=%f&bat=%f",idAnimal,zone,idField,"15",temperature,latitude, battery);
+    //snprintf(poststring,300,"animal_id=1&zone_id=1&field_id=2&date=1&temp=1&latitude=1&longitude=1&bat=1");
     // cout << "poststring: "<< poststring << "tamanho: "<<strlen(poststring) <<endl << endl;
      snprintf(post_send,600,
        "POST /Airfences/give_data.php HTTP/1.1\r\n"
        "Host: localhost\r\n"
-       "Content-Type: text/html\r\n"
+       "Content-Type: application/x-www-form-urlencoded\r\n"
       "Content-Length: %d\r\n\r\n"
       "%s",strlen(poststring),poststring);
     cout << "enviar:" << post_send << endl << endl;
-    p_tcpcom->TcpComOpen();
+    //p_tcpcom->TcpComOpen();
     p_tcpcom->TcpComTransmite(post_send,strlen(post_send));
     p_tcpcom->TcpComReceive(aux,600);
     //aux[499]='\0';
@@ -393,4 +394,5 @@ void  CThreadsField::run()
   pthread_detach(t_RFComSender);
   //pthread_detach(t_WIFIComReceiver);
   pthread_detach(t_WIFIComSender);
+  pthread_detach(t_processAnimalInfo);
 }

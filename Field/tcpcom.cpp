@@ -59,7 +59,7 @@ int CTcpCom::TcpComReceive(char * returned, int length)
 int CTcpCom::TcpComTransmite(char * info, int length)
 {
 	if(m_bconnected){
-	return write(sd,info,length);
+	write(sd,info,length);
 	}
 	else return -1;
 }
