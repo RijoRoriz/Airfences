@@ -207,15 +207,13 @@ void  * CThreadsField::pv_RFComReceiverHandler(void *threadid)
         commandMatch = true;
         else
         commandMatch = false;
-
-        cout << (int)msgRfReceiver[13];
         if((int)msgRfReceiver[13]>0 && (int)msgRfReceiver[13]<5) //AnimalZone
         {
 
           memcpy(&id_animal,&msgRfReceiver[2], 2);
 
           pthread_mutex_lock(mutex_field);
-          cout << "*****  set animal ******" << (int)msgRfReceiver[13] << endl;
+          cout << "*****  set animal ******" << "zona:"<< (int)msgRfReceiver[13] << "id:" << id_animal << endl;
           p_field->setAnimal(id_animal,(int)msgRfReceiver[13]); //ID, ZONE
           pthread_mutex_unlock(mutex_field);
 
