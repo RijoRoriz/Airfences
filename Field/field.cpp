@@ -162,7 +162,7 @@ uint16_t CField::getNextAnimal()
   // }
 while(mi_count_Red>2 && mi_count_Yellow>2 && mi_count_Green>2 )
   {
-      if(mi_count_Red < 3 && checkNULL())
+      if(mi_count_Red < 3 && !checkNULL(REDZONE))
     {
       idAnimal = getAnimal(REDZONE);
       if (idAnimal)
@@ -172,7 +172,7 @@ while(mi_count_Red>2 && mi_count_Yellow>2 && mi_count_Green>2 )
       }
       else return 0;
     }
-    else if(mi_count_Yellow < 3 && checkNULL())
+    else if(mi_count_Yellow < 3 && !checkNULL(YELLOWZONE))
     {
       idAnimal = getAnimal(YELLOWZONE);
       if (idAnimal)
@@ -183,7 +183,7 @@ while(mi_count_Red>2 && mi_count_Yellow>2 && mi_count_Green>2 )
       }
       else return 0;
     }
-    else if(mi_count_Green< 3 && checkNULL())
+    else if(mi_count_Green< 3 && !checkNULL(GREENZONE))
     {
       idAnimal = getAnimal(GREENZONE);
       if (idAnimal)
