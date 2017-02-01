@@ -36,6 +36,7 @@ class CField
 		CField();
 		~CField();
 		void setAnimal(uint16_t id, int list);
+		bool checkNULL(int zone);
 	 	uint16_t getAnimal(int list);
 		uint16_t getNextAnimal();
 		void setAnimalInfo(unsigned char *msg);

@@ -129,6 +129,43 @@ uint16_t CField::getAnimal(int list)
   }
 }
 
+bool CField :: checkNULL(int zone)
+{
+  Sanimal * p_aux;
+
+  switch (zone) {
+    case REDZONE:
+    p_aux = mL_redList;
+    if(p_aux == NULL) {
+      return true;
+    }
+    else {
+      return false;
+    }
+    break;
+
+    case YELLOWZONE:
+    p_aux = mL_yellowList;
+    if(p_aux == NULL) {
+      return true;
+    }
+    else {
+      return false;
+    }
+    break;
+
+    case GREENZONE:
+    p_aux = mL_greenList;
+    if(p_aux == NULL) {
+      return true;
+    }
+    else {
+      return false;
+    }
+    break;
+  }
+}
+
 uint16_t CField::getNextAnimal()
 {
   uint16_t idAnimal;
