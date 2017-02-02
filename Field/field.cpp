@@ -197,8 +197,8 @@ uint16_t CField::getNextAnimal()
   //   mi_count_Green = 0;
   //   return 0;
   // }
-while(mi_count_Red>2 && mi_count_Yellow>2 && mi_count_Green>2 )
-  {
+
+  do{
       if(mi_count_Red < 3 && !checkNULL(REDZONE))
     {
       idAnimal = getAnimal(REDZONE);
@@ -238,7 +238,7 @@ while(mi_count_Red>2 && mi_count_Yellow>2 && mi_count_Green>2 )
       mi_count_Yellow=0;
       mi_count_Red=0;
     }
-  }
+  }while((mi_count_Red>2 && mi_count_Yellow>2 && mi_count_Green>2)|| (mi_count_Red==0 && mi_count_Yellow==0 && mi_count_Green==0));
 }
 
 void CField::setAnimalInfo(unsigned char* returnedMsg)
