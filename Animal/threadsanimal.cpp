@@ -317,13 +317,13 @@ void * CThreadsAnimal::pv_RFComSenderHandler(void *threadid)
     }
     mq_close(mq_rfSender);
 
-    #if DEBUG
+    // #if DEBUG
     cout << "mq_receive(mq_rfSender): ";
     for(int i=0; i < 33; i++) {
       printf("%X ", cAnimalInfo[i]);
     }
     cout << endl;
-    #endif
+    // #endif
 
     switch (cCommand[4]) { //Command Type
       case 'R':
@@ -335,21 +335,48 @@ void * CThreadsAnimal::pv_RFComSenderHandler(void *threadid)
       break;
 
       case 'I': // Request Info
+      unsigned char test[32];
+      memset(test, '\0', 32);
+      for(int i=0; i < 32; i++) {
+        test[i] = static_cast<unsigned char>(cAnimalInfo[i]);
+      }
+      uint16_t idAnimal, idField;
+      int zone;
+      char type;
+      float bat,temp, lat1, long1;
       memcpy(&requestedInfo[0], &cCommand[0], 2); //ID_Field
+      memcpy(&idField, &cCommand[0], 2); //ID_Field
       memcpy(&requestedInfo[2], &cCommand[2], 2); //ID_Animal
+      memcpy(&idAnimal, &cCommand[2], 2); //ID_Animal
       memcpy(&requestedInfo[4], &cCommand[4], 1); //Command 'I'
+      memcpy(&type, &cCommand[4], 1); //Command 'I'
 
       if(cCommand[5] == 1) { //Request Temperature
-        memcpy(&requestedInfo[5], &cAnimalInfo[4],4);
+        memcpy(&requestedInfo[5], &cAnimalInfo[5],4);
+        memcpy(&temp, &cAnimalInfo[5],4);
       }
       if(cCommand[6] == 1) { //Request Battery
-        memcpy(&requestedInfo[9], &cAnimalInfo[8],4);
+        memcpy(&requestedInfo[9], &cAnimalInfo[9],4);
+        memcpy(&bat, &cAnimalInfo[9],4);
       }
       if(cCommand[7] == 1) { //Request GPS
         memcpy(&requestedInfo[13], &cAnimalInfo[13], 1);
-        memcpy(&requestedInfo[15], &cAnimalInfo[14], 4);
-        memcpy(&requestedInfo[19], &cAnimalInfo[18], 4);
+        memcpy(&zone, &cAnimalInfo[13], 1);
+        memcpy(&requestedInfo[14], &cAnimalInfo[14], 4);
+        memcpy(&lat1, &cAnimalInfo[14], 4);
+        memcpy(&requestedInfo[18], &cAnimalInfo[18], 4);
+        memcpy(&long1, &cAnimalInfo[18], 4);
       }
+      #if DEBUG
+      cout << "ID ANIMAL: " << idAnimal << endl
+      << "ID FIELD: " << idField << endl
+      << "COMMAND: " << type << endl
+      << "BAT: " << bat << endl
+      << "TEMP: " << temp << endl
+      << "ZONE: " << zone << endl
+      << "LAT: " << lat1 << endl
+      << "LONG: " << long1 << endl;
+      #endif
       break;
 
       default:
@@ -401,7 +428,21 @@ void * CThreadsAnimal::pv_RFComReceiverHandler(void *threadid)
     addrR[2] = (id & 0xFF00) >> 8;
     addrR[3] = id & 0x00FF;
     p_rf->RFComSetAddR(addrR);
+/******************************************************************************/
+    // current date/time based on current system
+   time_t now = time(0);
 
+   // convert now to string form
+   char* dt = ctime(&now);
+
+   cout << "The local date and time is: " << dt << endl;
+
+   // convert now to tm struct for UTC
+   tm *gmtm = gmtime(&now);
+   dt = asctime(gmtm);
+   cout << "The UTC date and time is:"<< dt << endl;
+
+/******************************************************************************/
     cout << "Waiting message" << endl;
     p_rf->RFComReceiver(msgRfReceiver);  //Wait for a message
     // p_rf->RFComPrintRPaylo(); //Print message received
@@ -559,7 +600,7 @@ void * CThreadsAnimal :: pv_batTempHandler(void *threadid)
     //Read animal's battery level
     p_adc->readBatteryLevel();
     fbatteryLevel = p_adc->getBatteryLevel();
-    cout << "BAT: " << fbatteryLevel << endl;
+    // cout << "BAT: " << fbatteryLevel << endl;
 
     memcpy(&msg_batTemp[4], &fbatteryLevel, 4);
 
@@ -572,6 +613,7 @@ void * CThreadsAnimal :: pv_batTempHandler(void *threadid)
     else if(fbatteryLevel < 25.0) { //Low battery level
       //Blink Power LED
       cout << "Low Battery Level" << endl;
+      system("poweroff");
       p_leds->m_batteryWarning();
     }
     else if(fbatteryLevel < 10.0) {
