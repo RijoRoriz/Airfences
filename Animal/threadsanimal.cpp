@@ -428,21 +428,7 @@ void * CThreadsAnimal::pv_RFComReceiverHandler(void *threadid)
     addrR[2] = (id & 0xFF00) >> 8;
     addrR[3] = id & 0x00FF;
     p_rf->RFComSetAddR(addrR);
-/******************************************************************************/
-    // current date/time based on current system
-   time_t now = time(0);
 
-   // convert now to string form
-   char* dt = ctime(&now);
-
-   cout << "The local date and time is: " << dt << endl;
-
-   // convert now to tm struct for UTC
-   tm *gmtm = gmtime(&now);
-   dt = asctime(gmtm);
-   cout << "The UTC date and time is:"<< dt << endl;
-
-/******************************************************************************/
     cout << "Waiting message" << endl;
     p_rf->RFComReceiver(msgRfReceiver);  //Wait for a message
     // p_rf->RFComPrintRPaylo(); //Print message received
