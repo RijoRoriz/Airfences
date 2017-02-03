@@ -94,6 +94,7 @@ uint16_t CField::getAnimal(int list)
       mL_greenList=aux->pointer;
       returnid=aux->id;
       delete aux;
+      cout << "get animal from green:"<< returnid<< endl;
       return returnid;
     }
   }
@@ -109,6 +110,7 @@ uint16_t CField::getAnimal(int list)
       mL_yellowList=aux->pointer;
       returnid=aux->id;
       delete aux;
+      cout << "get animal from yellow:"<< returnid<< endl;
       return returnid;
     }
   }
@@ -124,6 +126,7 @@ uint16_t CField::getAnimal(int list)
       mL_redList=aux->pointer;
       returnid=aux->id;
       delete aux;
+      cout << "get animal from red:"<< returnid<< endl;
       return returnid;
     }
   }
