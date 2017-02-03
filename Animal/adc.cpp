@@ -107,9 +107,9 @@ void CAdc :: readTemperature()
 	//Temp °C = 100*(reading in V) - 50
 	mf_temperature = 100 * mf_tmp36voltage - 50;
 
-	// cout << fixed;
-	// cout << "Voltage TMP36:     " << setprecision(3) << mf_tmp36voltage << endl;
-	// cout << "Temperature: " << setprecision(3) << mf_temperature  << endl;
+	cout << fixed;
+	cout << "Voltage TMP36:     " << setprecision(3) << mf_tmp36voltage << endl;
+	cout << "Temperature: " << setprecision(3) << mf_temperature  << endl;
 }
 
 float CAdc :: getTemperature()
@@ -130,9 +130,10 @@ void CAdc :: readBatteryLevel()
 	// cout << fixed;
 	cout << "Voltage: " << setprecision(3) << mf_batteryLevel << endl;
 
-	// mf_batteryLevel = ((abss(3.20 - mf_batteryLevel) / 0.43) * 100);
+	//Percentage = 159.091*read - 404.31
+	mf_batteryLevel = 159.091 * mf_batteryLevel - 404.31;
 
-	// cout << "Percentage: " << mf_batteryLevel << endl;
+	cout << "Percentage: " << mf_batteryLevel << endl;
 }
 
 float CAdc :: getBatteryLevel()
