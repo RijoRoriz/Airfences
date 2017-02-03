@@ -104,8 +104,6 @@ CThreadsField::CThreadsField()
   unsigned char addrR[4] = {0xFF, 0xFF, 0x00, 0x01};
 
   p_rf->RFComSetAddR(addrR);
-  p_field->setAnimal(1,GREENZONE);
-  //p_tcpcom->TcpComOpen();
   run();
   pthread_mutex_lock(mutex_process);
   pthread_cond_signal(ts_process);
@@ -235,6 +233,7 @@ void  * CThreadsField::pv_RFComReceiverHandler(void *threadid)
       }
       if(!commandMatch)
       {
+        trys++;
         pthread_mutex_lock(mutex_sendInfoRF);
         pthread_cond_signal(ts_sendInfoRF);
         pthread_mutex_unlock(mutex_sendInfoRF);
@@ -285,6 +284,8 @@ void  * CThreadsField::pv_WIFIComReceiverHandler(void *threadid)
   double longitude=0;
   double longitude2=0;
   uint16_t idAnimal=0;
+  bool empty=false;
+
   while (1)
   {
     pthread_mutex_lock(mutex_readInfoWifi);
@@ -303,44 +304,83 @@ void  * CThreadsField::pv_WIFIComReceiverHandler(void *threadid)
       {
         if(p_tcpcom)
         {
-        // cout << "depois de criar tcp pointer2" << endl;
-         snprintf(poststring,300,"field_id=%d",idField);
-          snprintf(post_send,500,
-          "POST /Airfences/give_data_rec.php HTTP/1.1\r\n"
-         "Host: localhost\r\n"
-            "Content-Type: application/x-www-form-urlencoded\r\n"
-           "Content-Length: %d\r\n\r\n"
-           "%s\r\n",strlen(poststring),poststring);
-           pthread_mutex_lock (mutex_tcp);
-           p_tcpcom->TcpComOpen();
-           p_tcpcom->TcpComTransmite(post_send,strlen(post_send));
-           p_tcpcom->TcpComReceive(aux,500);
-           p_tcpcom->TcpComClose();
-           pthread_mutex_unlock (mutex_tcp);
-           pthread_mutex_lock(mutex_animal);
-           idAnimal=_ID_ANIMAL;
-           pthread_mutex_unlock(mutex_animal);
-           memcpy(command_to_send,&aux[333],100);
-           cout << "mensagem::" << command_to_send << endl;
-           sscanf(command_to_send,"%lf;%lf;%lf;%lf",&latitude,&longitude,&latitude2,&longitude2);
-           cout.precision(7);
-           cout << fixed << latitude << longitude << latitude2 << longitude2 << endl;
-           memcpy(&cReadWifi[0],&idField,2);
-           memcpy(&cReadWifi[2],&idAnimal,2);
-           cReadWifi[4]='C';
-           memcpy(&cReadWifi[5],&latitude,4);
-           memcpy(&cReadWifi[9],&longitude,4);
-           memcpy(&cReadWifi[13],&latitude2,4);
-           memcpy(&cReadWifi[17],&longitude2,4);
-           mq_wifiReceiver = mq_send(mq_wifiReceiver, cReadWifi, 33, msgqWifi_prio);
-           if (mq_wifiReceiver == (mqd_t)-1) {
-             perror("CThreadsField::pv_processingInfoHandler In mq_send()");
-             //exit(1);
-           }
-           mq_close(mq_wifiReceiver);
-         }
+          pthread_mutex_lock(mutex_field);
+          empty=(p_field->checkNULL(GREENZONE) && p_field->checkNULL(YELLOWZONE) && p_field->checkNULL(REDZONE));
+          pthread_mutex_unlock(mutex_field);
 
-  }
+           if(!empty){
+             snprintf(poststring,300,"field_id=%d",idField);
+            snprintf(post_send,500,
+            "POST /Airfences/give_data_rec.php HTTP/1.1\r\n"
+           "Host: localhost\r\n"
+              "Content-Type: application/x-www-form-urlencoded\r\n"
+             "Content-Length: %d\r\n\r\n"
+             "%s\r\n",strlen(poststring),poststring);
+             pthread_mutex_lock (mutex_tcp);
+             p_tcpcom->TcpComOpen();
+             p_tcpcom->TcpComTransmite(post_send,strlen(post_send));
+             p_tcpcom->TcpComReceive(aux,500);
+             p_tcpcom->TcpComClose();
+             pthread_mutex_unlock (mutex_tcp);
+             pthread_mutex_lock(mutex_animal);
+             idAnimal=_ID_ANIMAL;
+             pthread_mutex_unlock(mutex_animal);
+             memcpy(command_to_send,&aux[333],100);
+             sscanf(command_to_send,"%lf;%lf;%lf;%lf",&latitude,&longitude,&latitude2,&longitude2);
+             memcpy(&cReadWifi[0],&idField,2);
+             memcpy(&cReadWifi[2],&idAnimal,2);
+             cReadWifi[4]='C';
+             memcpy(&cReadWifi[5],&latitude,4);
+             memcpy(&cReadWifi[9],&longitude,4);
+             memcpy(&cReadWifi[13],&latitude2,4);
+             memcpy(&cReadWifi[17],&longitude2,4);
+             mq_wifiReceiver = mq_send(mq_wifiReceiver, cReadWifi, 33, msgqWifi_prio);
+             if (mq_wifiReceiver == (mqd_t)-1) {
+               perror("CThreadsField::pv_processingInfoHandler In mq_send()");
+               //exit(1);
+             }
+            }
+            else
+            {
+              cout << "first time "<< endl;
+              snprintf(poststring,300,"field_id=%d",idField);
+              snprintf(post_send,500,
+              "POST /Airfences/give_full_data.php HTTP/1.1\r\n"
+              "Host: localhost\r\n"
+              "Content-Type: application/x-www-form-urlencoded\r\n"
+              "Content-Length: %d\r\n\r\n"
+              "%s\r\n",strlen(poststring),poststring);
+              pthread_mutex_lock (mutex_tcp);
+              p_tcpcom->TcpComOpen();
+              p_tcpcom->TcpComTransmite(post_send,strlen(post_send));
+              p_tcpcom->TcpComReceive(aux,500);
+              p_tcpcom->TcpComClose();
+              pthread_mutex_unlock(mutex_tcp);
+              int ids=0;
+              for(int j=0;j<25;j++)
+              {
+                cout << aux[333+j] << " ";
+              }
+              sscanf(&aux[333],"%d#",&ids);
+              cout << "valor::::::" << ids << endl;
+              if(ids>0)
+              {
+                int i=0;
+                while(i!=ids)
+                {
+                  i++;
+                  pthread_mutex_lock(mutex_field);
+                  p_field->setAnimal(i,REDZONE);
+                  pthread_mutex_unlock(mutex_field);
+                }
+              }
+              pthread_mutex_lock(mutex_process);
+              pthread_cond_signal(ts_process);
+              pthread_mutex_unlock(mutex_process);
+            }
+         }
+       }
+      mq_close(mq_wifiReceiver);
 }
 }
 
@@ -368,11 +408,10 @@ void *CThreadsField::pv_WIFIComSenderHandler(void *threadid)
     {
       pthread_mutex_lock (mutex_wifi_list);
       p_field->getAnimalInfo(buffer);
-      empty=(p_field->checkNULL(GREENZONE) && p_field->checkNULL(YELLOWZONE) && p_field->checkNULL(REDZONE));
       pthread_mutex_unlock (mutex_wifi_list);
-
-      if(!empty)
-      {
+      memset(poststring,'\0',150);
+      memset(post_send,'\0',400);
+      memset(aux,'\0',400);
           memcpy(&idField,&buffer[0],2);
           memcpy(&idAnimal,&buffer[2],2);
           memcpy(&temperature,&buffer[5],4);
@@ -381,9 +420,6 @@ void *CThreadsField::pv_WIFIComSenderHandler(void *threadid)
           memcpy(&latitude,&buffer[14],4);
           memcpy(&longitude,&buffer[18],4);
 
-          memset(poststring,'\0',150);
-          memset(post_send,'\0',400);
-          memset(aux,'\0',400);
            snprintf(poststring,150,"animal_id=%d&zone_id=%d&field_id=%d&date=%s&temp=%f&latitude=%f&longitude=%f&bat=%f",idAnimal,zone,idField,"15",temperature,latitude, longitude, battery);
            snprintf(post_send,400,
              "POST /Airfences/give_data.php HTTP/1.1\r\n"
@@ -421,12 +457,9 @@ void *CThreadsField::pv_WIFIComSenderHandler(void *threadid)
             p_field->setAnimal(new_animal_to_add,REDZONE); //ID, ZONE
             pthread_mutex_unlock(mutex_field);
           }
-        }
-
-        //ler todos os animais
-    }
   }
 
+}
 }
 
 void *CThreadsField::pv_processAnimalInfoHandler(void *threadid)
@@ -437,7 +470,7 @@ void *CThreadsField::pv_processAnimalInfoHandler(void *threadid)
   char newInfoDatabase[MAX_MSG_LEN];
   unsigned int sender;
   struct mq_attr attr;
-
+  bool empty=false;
   while (1)
   {
     pthread_mutex_lock(mutex_process);
@@ -451,61 +484,73 @@ void *CThreadsField::pv_processAnimalInfoHandler(void *threadid)
       perror("CThreadsField::pv_processAnimalInfoHandler In mq_open()");
       //exit(1);
     }
-
-    mq_getattr(mq_wifiReceiver, &attr);
-
-    //Have a commmand to send by RF ('N' or 'C')
-    if(attr.mq_curmsgs > 0) {
-      cout << "MQUEUE WIFI_RECEIVER IS NOT EMPTY" << endl;
-      int msgsz = mq_receive(mq_wifiReceiver, newInfoDatabase, MAX_MSG_LEN, &sender);
-      if (msgsz == -1) {
-        perror("CThreadsField::pv_processAnimalInfoHandler In mq_receive()");
-        //exit(1);
-      }
-      mq_close(mq_wifiReceiver);
-
-      //Receive command to send by RF
-      pthread_mutex_lock(mutex_RF);
-      for(int i=0; i < 32; i++) {
-        msgRfSender[i] = static_cast<unsigned char>(newInfoDatabase[i]);
-      }
-      pthread_mutex_unlock(mutex_RF);
-
-      pthread_mutex_lock(mutex_sendInfoRF);
-      pthread_cond_signal(ts_sendInfoRF);
-      pthread_mutex_unlock(mutex_sendInfoRF);
-    }
-    else { //Normal request to animal 'I'
-    mq_close(mq_wifiReceiver);
-    cout << "NORMAL REQUEST 'I'" << endl;
-
     pthread_mutex_lock(mutex_field);
-    idAnimal = p_field->getNextAnimal();
-    cout << "ID ANIMAL: " << idAnimal << endl;
+    empty=(p_field->checkNULL(GREENZONE) && p_field->checkNULL(YELLOWZONE) && p_field->checkNULL(REDZONE));
     pthread_mutex_unlock(mutex_field);
 
-    if(!idAnimal) { //No animals
-      //Get info from database
-      cout << "NO ANIMALS" << endl;
-      pthread_mutex_lock(mutex_readInfoWifi);
-      pthread_cond_signal(ts_readInfoWifi);
-      pthread_mutex_unlock(mutex_readInfoWifi);
-    }
-    else { //If have an animal
-      cout << "SELECT AN ANIMAL" << endl;
-      pthread_mutex_lock(mutex_RF);
-      // memset(msgRfSender, '\0', 32);
+      if(!empty){
+        mq_getattr(mq_wifiReceiver, &attr);
 
-      memcpy(&msgRfSender[0], &idField, 2);
-      memcpy(&msgRfSender[2], &idAnimal, 2);
-      msgRfSender[4] = 'I';
-      memset(&msgRfSender[5],1,25);
-      pthread_mutex_unlock(mutex_RF);
+      //Have a commmand to send by RF ('N' or 'C')
+      if(attr.mq_curmsgs > 0) {
+        cout << "MQUEUE WIFI_RECEIVER IS NOT EMPTY" << endl;
+        int msgsz = mq_receive(mq_wifiReceiver, newInfoDatabase, MAX_MSG_LEN, &sender);
+        if (msgsz == -1) {
+          perror("CThreadsField::pv_processAnimalInfoHandler In mq_receive()");
+          //exit(1);
+        }
+        mq_close(mq_wifiReceiver);
 
-      pthread_mutex_lock(mutex_sendInfoRF);
-      pthread_cond_signal(ts_sendInfoRF);
-      pthread_mutex_unlock(mutex_sendInfoRF);
+        //Receive command to send by RF
+        pthread_mutex_lock(mutex_RF);
+        for(int i=0; i < 32; i++) {
+          msgRfSender[i] = static_cast<unsigned char>(newInfoDatabase[i]);
+        }
+        pthread_mutex_unlock(mutex_RF);
+
+        pthread_mutex_lock(mutex_sendInfoRF);
+        pthread_cond_signal(ts_sendInfoRF);
+        pthread_mutex_unlock(mutex_sendInfoRF);
+      }
+      else { //Normal request to animal 'I'
+      mq_close(mq_wifiReceiver);
+      cout << "NORMAL REQUEST 'I'" << endl;
+
+      pthread_mutex_lock(mutex_field);
+      idAnimal = p_field->getNextAnimal();
+      cout << "ID ANIMAL: " << idAnimal << endl;
+      pthread_mutex_unlock(mutex_field);
+
+      if(!idAnimal) { //No animals
+        //Get info from database
+        cout << "NO ANIMALS" << endl;
+        pthread_mutex_lock(mutex_readInfoWifi);
+        pthread_cond_signal(ts_readInfoWifi);
+        pthread_mutex_unlock(mutex_readInfoWifi);
+      }
+      else { //If have an animal
+        cout << "SELECT AN ANIMAL" << endl;
+        pthread_mutex_lock(mutex_RF);
+        // memset(msgRfSender, '\0', 32);
+
+        memcpy(&msgRfSender[0], &idField, 2);
+        memcpy(&msgRfSender[2], &idAnimal, 2);
+        msgRfSender[4] = 'I';
+        memset(&msgRfSender[5],1,25);
+        pthread_mutex_unlock(mutex_RF);
+
+        pthread_mutex_lock(mutex_sendInfoRF);
+        pthread_cond_signal(ts_sendInfoRF);
+        pthread_mutex_unlock(mutex_sendInfoRF);
+      }
     }
+  }
+  else
+  {
+    cout << "null" << endl;
+    pthread_mutex_lock(mutex_readInfoWifi);
+    pthread_cond_signal(ts_readInfoWifi);
+    pthread_mutex_unlock(mutex_readInfoWifi);
   }
 }
 }
