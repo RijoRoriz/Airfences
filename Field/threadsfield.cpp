@@ -147,8 +147,8 @@ void * CThreadsField::pv_RFComSenderHandler(void *threadid)
 
     animalAddr[0]=0xAA;
     animalAddr[1]=0xAA;
-    animalAddr[2]=0x00;
-    animalAddr[3]=0x01;
+    animalAddr[2]=msgRfSender[3];
+    animalAddr[3]=msgRfSender[2];
     pthread_mutex_lock(mutex_RF);
     p_rf->RFComSender(animalAddr,msgRfSender);
     p_rf->RFComPrintTPaylo();
@@ -181,7 +181,7 @@ void  * CThreadsField::pv_RFComReceiverHandler(void *threadid)
     pthread_mutex_unlock(mutex_RF);
 
     if(!received) { //Message not received
-      if(trys < 5) {
+      if(trys < 3) {
         trys++;
         cout << "timeout"<< endl;
 
@@ -259,7 +259,7 @@ void  * CThreadsField::pv_RFComReceiverHandler(void *threadid)
 
     }
     if((trys == 0) && commandMatch) {
-      delay(5000);
+      delay(50);
       cout << "Trigger ts_process" << endl;
       pthread_mutex_lock(mutex_process);
       pthread_cond_signal(ts_process);
@@ -357,10 +357,6 @@ void  * CThreadsField::pv_WIFIComReceiverHandler(void *threadid)
               p_tcpcom->TcpComClose();
               pthread_mutex_unlock(mutex_tcp);
               int ids=0;
-              for(int j=0;j<25;j++)
-              {
-                cout << aux[333+j] << " ";
-              }
               sscanf(&aux[333],"%d#",&ids);
               cout << "valor::::::" << ids << endl;
               if(ids>0)

@@ -28,7 +28,7 @@
 #define BUFF_LEN       33
 #define MAX_MSG_LEN    10000
 
-#define TIMEOUT_RF_RECEIVER  2
+#define TIMEOUT_RF_RECEIVER  4
 
 
 #define OUTZONE     4
