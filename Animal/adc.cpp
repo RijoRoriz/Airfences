@@ -131,7 +131,7 @@ void CAdc :: readBatteryLevel()
 	cout << "Voltage: " << setprecision(3) << mf_batteryLevel << endl;
 
 	// Percentage = 159.091*read - 404.31
-	mf_batteryLevel = 159.091 * mf_batteryLevel - 404.31;
+	mf_batteryLevel = 159.091 * mf_batteryLevel - 390.31;
 	// mf_batteryLevel = 1142.85 * mf_batteryLevel - 3565.121;
 
 	cout << "Percentage: " << mf_batteryLevel << endl;

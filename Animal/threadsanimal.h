@@ -13,6 +13,14 @@
 #include "leds.h"
 #include "NRF905.h"
 
+#ifndef GPS
+#define GPS 1
+#endif
+
+#ifndef INFO
+#define INFO 1
+#endif
+
 using namespace std;
 
 class CThreadsAnimal
@@ -34,7 +42,7 @@ private:
 
 	pthread_attr_t setAttr(int prio);
 
-  
+
 
 	void pv_initTimer();
   void pv_updateTimer();

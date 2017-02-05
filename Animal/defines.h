@@ -38,7 +38,7 @@ struct SSquare
 #define MQWIFI         "/mq_wifi"
 #define MQWIFILEN      200
 #define MQRFCOM        "/mq_rf"
-#define MQRFCOMLEN     33
+#define MQRFCOMLEN     32
 #define MQRFSENDER     "/mq_rfSender"
 #define MAX_MSG_LEN    10000
 

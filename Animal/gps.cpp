@@ -203,7 +203,6 @@ void CGps :: readGps()
      cout << "Read again..." << endl;
   }
 }
-
 bool CGps :: gpsDataStatus()
 {
   return mb_gpsData;
