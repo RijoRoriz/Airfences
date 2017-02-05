@@ -1,3 +1,9 @@
+/*
+	defines.h - files with all the defines of the field on Airfences project
+	Created by Ricardo Roriz and Pedro Costa, 12 December 2016.
+	Last Update by Ricardo Roriz, 4 February 2017
+*/
+
 #ifndef DEFINES_H_
 #define DEFINES_H_
 
@@ -28,7 +34,7 @@
 #define BUFF_LEN       33
 #define MAX_MSG_LEN    10000
 
-#define TIMEOUT_RF_RECEIVER  2
+#define TIMEOUT_RF_RECEIVER  4
 
 
 #define OUTZONE     4
