@@ -501,9 +501,9 @@ void * CThreadsAnimal :: pv_processinInfoHandler(void *threadid)
     pthread_mutex_lock(mutex_GPS);
     latitude = p_gps->getLatitude();
     longitude = p_gps->getLongitude();
-    // cout << setprecision(6) << fixed
-    // << "Latitude: " << latitude << endl
-    // << "Longitude: " << longitude << endl;
+    cout << setprecision(8) << fixed
+    << "Latitude: " << latitude << endl
+    << "Longitude: " << longitude << endl;
     pthread_mutex_unlock(mutex_GPS);
 #endif
 
