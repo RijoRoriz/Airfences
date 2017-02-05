@@ -1,3 +1,26 @@
+/*
+	threadsfield.h - Library to handle the field p_threads on Airfences project
+	Created by Ricardo Roriz and Pedro Costa, 12 December 2016.
+	Last Update by Ricardo Roriz, 3 February 2017
+*/
+
+/*****************************************************************************
+	Class to handle all the threads of the Field Module
+	Members:
+		p_thread t_RFComSender -> Thread to Send Information by RadioFrequency
+		p_thread t_RFComReceiver -> Thread to Receive Information By RadioFrequency
+		p_thread t_WIFIComSender -> Thread to Send Information to the database
+		p_thread t_WIFIComReceiver -> Thread to Receive Information to the database
+		p_thread t_processAnimalInfo -> Thread to process Animal Requests,
+															select the next Animal to Request and Handle Errors
+	Functions:
+	void run() -> run all the threads
+	pthread_attr_t setAttr(int prio) -> Set the priority of Threads
+		input: int prio -> priority
+		output: pthread_attr_t with the right priority
+
+*******************************************************************************/
+
 #ifndef THREADSFIELD_H_
 #define THREADSFIELD_H_
 
@@ -10,7 +33,9 @@
 #include "tcpcom.h"
 #include "field.h"
 
-
+/*
+	Linked list to handle animals Regist and send to database
+*/
 struct SanimalRegist
 {
 	int id;
@@ -36,9 +61,7 @@ class CThreadsField
 			pthread_t t_WIFIComReceiver;
 			pthread_t t_processAnimalInfo;
 
-			//static void pv_timerHandler(int sig, siginfo_t *si, void *uc);
 			pthread_attr_t setAttr(int prio);
-			//void pv_initTimer();
 
 			/***** PTHREADS BEHAVIOUR *****/
 			static void * pv_RFComSenderConfHandler(void *threadid);

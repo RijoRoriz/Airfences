@@ -4,7 +4,6 @@ using namespace std;
 
 CTcpCom::CTcpCom()
 {
-	//memset(&addr, 0, sizeof(addr));
 	host = gethostbyname("192.168.43.146"); /* select IP adress */
 	port = htons(80);
 	addr.sin_family = AF_INET; /* select internet protocol */

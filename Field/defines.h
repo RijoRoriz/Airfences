@@ -1,3 +1,9 @@
+/*
+	defines.h - files with all the defines of the field on Airfences project
+	Created by Ricardo Roriz and Pedro Costa, 12 December 2016.
+	Last Update by Ricardo Roriz, 4 February 2017
+*/
+
 #ifndef DEFINES_H_
 #define DEFINES_H_
 

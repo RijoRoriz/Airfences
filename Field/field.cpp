@@ -172,35 +172,6 @@ bool CField :: checkNULL(int zone)
 uint16_t CField::getNextAnimal()
 {
   uint16_t idAnimal;
-
-  // idAnimal = getAnimal(REDZONE);
-  // if((idAnimal != 0) && (mi_count_Red < 3)) {
-  //   mi_count_Red++;
-  //   return idAnimal;
-  // }
-  // else {
-  //   mi_count_Red = 0;
-  // }
-  //
-  // idAnimal = getAnimal(YELLOWZONE);
-  // if((idAnimal != 0) && (mi_count_Yellow < 3)) {
-  //   mi_count_Yellow++;
-  //   return idAnimal;
-  // }
-  // else {
-  //   mi_count_Yellow = 0;
-  // }
-  //
-  // idAnimal = getAnimal(GREENZONE);
-  // if((idAnimal != 0) && (mi_count_Green < 3)) {
-  //   mi_count_Green++;
-  //   return idAnimal;
-  // }
-  // else {
-  //   mi_count_Green = 0;
-  //   return 0;
-  // }
-
   do{
       if(mi_count_Red < 3 && !checkNULL(REDZONE))
     {
